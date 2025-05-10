@@ -25,6 +25,7 @@ public class MenuService(
 {
     public async Task<Result<int>> Create(CreateMenuRequest request, CancellationToken cancellationToken)
     {
+        
         var name = request.Name.Trim();
         var existingMenu = await _unitOfWork.Repository<Menu>().Entities
             .Where(x => x.Name.Equals(name) && x.IsDeleted == false)

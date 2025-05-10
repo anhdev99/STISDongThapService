@@ -3,7 +3,7 @@ using Core.Entities;
 
 namespace Core.DTOs.Responses;
 
-public class GetStatusesWithPagingDto : IMapFrom<ProjectStatus>
+public class GetTaskTypeWithPagingDto : IMapFrom<TaskType>
 {
     public int Id { get; set; }
     public string Code { get; set; }
@@ -13,7 +13,7 @@ public class GetStatusesWithPagingDto : IMapFrom<ProjectStatus>
     public string? Color { get; set; }
 }
 
-public class GetStatusDto : IMapFrom<ProjectStatus>
+public class GetTaskTypeDto : IMapFrom<TaskType>
 {
     public int Id { get; set; }
     public string Code { get; set; }
@@ -23,7 +23,7 @@ public class GetStatusDto : IMapFrom<ProjectStatus>
     public string? Color { get; set; }
 }
 
-public class StatusSimpleDto : IMapFrom<ProjectStatus>
+public class TaskTypeSimpleDto : IMapFrom<TaskType>
 {
     public int Id { get; set; }
     public string Name { get; set; }

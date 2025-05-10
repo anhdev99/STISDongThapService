@@ -10,7 +10,7 @@ public interface IStatusService
     Task<Result<int>> Update(int id, UpdateStatusRequest model, CancellationToken cancellationToken);
     Task<Result<int>> Delete(int id, CancellationToken cancellationToken);
 
-    Task<PaginatedResult<GetStatusWithPagingDto>> GetStatussWithPaging(GetStatussWithPaginationQuery query,
+    Task<PaginatedResult<GetStatusesWithPagingDto>> GetStatusesWithPaging(GetStatusesWithPaginationQuery query,
         CancellationToken cancellationToken);
 
     Task<Result<GetStatusDto>> GetById(int id, CancellationToken cancellationToken);

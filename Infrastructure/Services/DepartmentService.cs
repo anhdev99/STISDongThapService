@@ -28,6 +28,7 @@ public class DepartmentService(
     public async Task<DepartmentResponse> GetDepartmentByCode(string departmentCode,
         CancellationToken cancellationToken)
     {
+        
         var entity = await _unitOfWork.Repository<Department>().Entities
             .Where(x => x.Code == departmentCode && x.IsDeleted != true)
             .ProjectTo<DepartmentResponse>(_mapper.ConfigurationProvider)
@@ -148,6 +149,14 @@ public class DepartmentService(
 
     public async Task<Result<int>> Create(CreateDepartmentRequest model, CancellationToken cancellationToken)
     {
+        var existingStatus = await _context.Departments
+            .AnyAsync(x => x.Code == model.Code, cancellationToken);
+
+        if (existingStatus)
+        {
+            return await Result<int>.FailureAsync("Mã đơn vị đã tồn tại");
+        }
+        
         var entity = new Department()
         {
             Code = model.Code,
@@ -169,6 +178,15 @@ public class DepartmentService(
         {
             throw new Exception($"Không tìm thấy phòng ban: {id}");
         }
+        
+        var existingStatus = await _context.Departments
+            .AnyAsync(x => x.Code == model.Code.Trim(), cancellationToken);
+
+        if (existingStatus)
+        {
+            return await Result<int>.FailureAsync("Mã vai trò đã tồn tại");
+        }
+        
         entity.Code = model.Code;
         entity.Name = model.Name;
         entity.Order = model.Order;

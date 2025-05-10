@@ -50,6 +50,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IStatusService, ProjectStatusService>();
+        services.AddScoped<ITaskTypeService, TaskTypeService>();
 
         // Handlers
         // services.AddTransient<INotificationHandler<FileDeletedEvent>, FileDeletedEventHandler>();

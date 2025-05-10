@@ -24,6 +24,14 @@ public class RankService : IRankService
     
     public async Task<Result<int>> Create(CreateRankRequest model, CancellationToken cancellationToken)
     {
+        var existingStatus = await _context.Ranks
+            .AnyAsync(x => x.Code == model.Code, cancellationToken);
+
+        if (existingStatus)
+        {
+            return await Result<int>.FailureAsync("Mã cấp bật đã tồn tại");
+        }
+        
         var entity = new Rank()
         {
             Code = model.Code,
@@ -53,6 +61,15 @@ public class RankService : IRankService
         entity.Color = model.Color;
 
         await _context.SaveChangesAsync(cancellationToken);
+        
+        var existingStatus = await _context.Ranks
+            .AnyAsync(x => x.Code == model.Code.Trim(), cancellationToken);
+
+        if (existingStatus)
+        {
+            return await Result<int>.FailureAsync("Mã vai trò đã tồn tại");
+        }
+        
 
         return await Result<int>.SuccessAsync(entity.Id, "Cập nhật cấp bậc thành công");
     }

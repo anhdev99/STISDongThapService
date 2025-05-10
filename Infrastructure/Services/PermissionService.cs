@@ -21,8 +21,19 @@ public class PermissionService(
     IMapper mapper)
     : BaseService(httpContextAccessor, logger, dbContext, unitOfWork, mapper), IPermissionService
 {
+    private readonly ApplicationDbContext _context;
+
     public async Task<Result<int>> Create(CreatePermissionRequest request, CancellationToken cancellationToken)
     {
+        
+        var existingStatus = await _context.Permissions
+            .AnyAsync(x => x.Code == request.Code, cancellationToken);
+
+        if (existingStatus)
+        {
+            return await Result<int>.FailureAsync("Mã quyền đã tồn tại");
+        }
+        
         var name = request.Name.Trim();
         var existingPermission = await _unitOfWork.Repository<Permission>().Entities
             .Where(x => x.Name.Equals(name) && x.IsDeleted == false)
@@ -55,6 +66,14 @@ public class PermissionService(
         if (entity == null)
         {
             throw new Exception("Không tìm thấy quyền");
+        }
+        
+        var existingStatus = await _context.Permissions
+            .AnyAsync(x => x.Code == request.Code.Trim(), cancellationToken);
+
+        if (existingStatus)
+        {
+            return await Result<int>.FailureAsync("Mã vai trò đã tồn tại");
         }
 
         if (entity.IsProtected)

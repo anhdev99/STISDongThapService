@@ -22,9 +22,18 @@ public class RoleService(
     : BaseService(httpContextAccessor, logger,dbContext, unitOfWork, mapper), IRoleService
 {
     private readonly UserService _userService;
+    private readonly ApplicationDbContext _context;
 
     public async Task<Result<int>> Create(CreateRoleRequest request, CancellationToken cancellationToken)
     {
+        var existingStatus = await _context.Roles
+            .AnyAsync(x => x.Code == request.Code.Trim(), cancellationToken);
+
+        if (existingStatus)
+        {
+            return await Result<int>.FailureAsync("Mã vai trò đã tồn tại");
+        }
+        
         var name = request.Name.Trim();
         var existingRole = await _unitOfWork.Repository<Role>().Entities
             .Where(x => x.Name.Equals(name) && x.IsDeleted == false)
@@ -58,6 +67,14 @@ public class RoleService(
         if (entity == null)
         {
             throw new Exception("Vai trò không tồn tại");
+        }
+        
+        var existingStatus = await _context.Roles
+            .AnyAsync(x => x.Code == request.Code.Trim(), cancellationToken);
+
+        if (existingStatus)
+        {
+            return await Result<int>.FailureAsync("Mã vai trò đã tồn tại");
         }
 
         var name = request.Name.Trim();
