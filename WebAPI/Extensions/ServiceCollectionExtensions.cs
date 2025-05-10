@@ -1,4 +1,6 @@
 using System.Reflection;
+using AccountService.Application.Interfaces;
+using AccountService.Infrastructure.Services;
 using Core.Authorization;
 using Core.Interfaces;
 using Core.Interfaces.Settings;
@@ -6,6 +8,7 @@ using Core.Middleware;
 using HealthChecks.UI.Client;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Infrastructure.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -42,7 +45,10 @@ public static class ServiceCollectionExtensions
   
         // Register Services
         services.AddScoped<IJwtUtils, JwtUtils>();
-   
+        services.AddScoped<IRankService, RankService>();
+        services.AddScoped<ISectorService, SectorService>();
+        services.AddScoped<IDepartmentService, DepartmentService>();
+
         // Handlers
         // services.AddTransient<INotificationHandler<FileDeletedEvent>, FileDeletedEventHandler>();
 
