@@ -2,7 +2,7 @@ using Shared;
 
 namespace Core.Entities;
 
-public class Status : BaseAuditableEntity
+public class ProjectStatus : BaseAuditableEntity
 {
     public string Code { get; set; }
     public string Name { get; set; }

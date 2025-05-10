@@ -26,7 +26,7 @@ public partial class ApplicationDbContext : DbContext
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<RoleMenu> RoleMenus => Set<RoleMenu>();
-    public DbSet<Status> Status => Set<Status>();
+    public DbSet<ProjectStatus> Status => Set<ProjectStatus>();
     public DbSet<FileMetadata> FileMetadata => Set<FileMetadata>();
     public DbSet<Department> Departments => Set<Department>();
   
