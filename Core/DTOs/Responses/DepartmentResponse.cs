@@ -3,7 +3,7 @@ using AutoMapper;
 using Core.Common.Mappings;
 using Core.Entities;
 
-namespace AccountService.Application.DTOs.Responses;
+namespace Core.DTOs.Responses;
 
 public class DepartmentResponse : IMapFrom<Department>
 {

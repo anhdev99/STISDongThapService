@@ -1,6 +1,4 @@
 using System.Reflection;
-using AccountService.Application.Interfaces;
-using AccountService.Infrastructure.Services;
 using Core.Authorization;
 using Core.Interfaces;
 using Core.Interfaces.Settings;

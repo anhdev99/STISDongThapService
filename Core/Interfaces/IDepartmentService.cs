@@ -1,9 +1,8 @@
-using AccountService.Application.DTOs;
-using AccountService.Application.DTOs.Requests;
-using AccountService.Application.DTOs.Responses;
+using Core.DTOs.Requests;
+using Core.DTOs.Responses;
 using Shared;
 
-namespace AccountService.Application.Interfaces
+namespace Core.Interfaces
 {
     public interface IDepartmentService
     {

@@ -1,4 +1,4 @@
-namespace AccountService.Application.DTOs.Requests;
+namespace Core.DTOs.Requests;
 
 
 public record CreateDepartmentRequest(string Code,string Name, int Order,int? parentId);

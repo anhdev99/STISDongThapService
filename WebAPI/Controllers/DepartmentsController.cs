@@ -1,13 +1,11 @@
-using AccountService.Application.DTOs;
-using AccountService.Application.DTOs.Requests;
-using AccountService.Application.DTOs.Responses;
-using AccountService.Application.Interfaces;
+using Core.DTOs.Requests;
+using Core.DTOs.Responses;
+using Core.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Shared;
-using WebAPI.Controllers;
 
-namespace AccountService.WebAPI.Controllers;
+namespace WebAPI.Controllers;
 
 public class DepartmentsController(IMediator mediator, ILogger<DepartmentsController> logger, IDepartmentService departmentService)
     : ApiControllerBase( logger)

@@ -1,8 +1,7 @@
-using AccountService.Application.DTOs.Requests;
-using AccountService.Application.DTOs.Responses;
-using AccountService.Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Core.DTOs.Requests;
+using Core.DTOs.Responses;
 using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
@@ -13,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Shared;
 using Shared.Extensions;
 
-namespace AccountService.Infrastructure.Services;
+namespace Infrastructure.Services;
 
 public class DepartmentService(
     IHttpContextAccessor httpContextAccessor,
