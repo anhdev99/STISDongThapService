@@ -9,6 +9,5 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
     public void Configure(EntityTypeBuilder<Project> builder)
     {
         builder.Property(p => p.Name).HasMaxLength(400).IsRequired();
-        builder.Property(p => p.Status);
     }
 }
