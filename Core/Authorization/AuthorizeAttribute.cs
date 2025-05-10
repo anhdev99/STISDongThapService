@@ -14,8 +14,6 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
         if (allowAnonymous)
             return;
 
-        var user = (UserDto)context.HttpContext.Items["User"];
-        if (user == null)
-            context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
+        
     }
 }

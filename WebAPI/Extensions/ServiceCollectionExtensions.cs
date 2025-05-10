@@ -46,6 +46,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRankService, RankService>();
         services.AddScoped<ISectorService, SectorService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
+        services.AddScoped<IMenuService, MenuService>();
+        services.AddScoped<IPermissionService, PermissionService>();
+        services.AddScoped<IRoleService, RoleService>();
 
         // Handlers
         // services.AddTransient<INotificationHandler<FileDeletedEvent>, FileDeletedEventHandler>();

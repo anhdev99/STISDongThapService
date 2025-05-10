@@ -34,7 +34,7 @@ public class SectorService : ISectorService
         _context.Sectors.Add(entity);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return await Result<int>.SuccessAsync(entity.Id, "Sector created");
+        return await Result<int>.SuccessAsync(entity.Id, "Ngành tạo thành công");
     }
     
     public async Task<Result<int>> Update(int id, UpdateSectorRequest model, CancellationToken cancellationToken)
@@ -42,7 +42,7 @@ public class SectorService : ISectorService
         var entity = _context.Sectors.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
         if (entity == null)
         {
-            throw new Exception($"Sector not found: {id}");
+            throw new Exception($"Không tìm thấy ngành: {id}");
         }
         entity.Code = model.Code;
         entity.Name = model.Name;
@@ -50,7 +50,7 @@ public class SectorService : ISectorService
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return await Result<int>.SuccessAsync(entity.Id, "Sector updated");
+        return await Result<int>.SuccessAsync(entity.Id, "Cập nhật ngành thành công");
     }
     
     public async Task<Result<int>> Delete(int id, CancellationToken cancellationToken)
@@ -58,13 +58,13 @@ public class SectorService : ISectorService
         var entity = _context.Sectors.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
         if (entity == null)
         {
-            throw new Exception($"Sector not found: {id}");
+            throw new Exception($"Không tìm thấy ngành: {id}");
         }
 
         entity.IsDeleted = true;
 
         await _context.SaveChangesAsync(cancellationToken);
-        return await Result<int>.SuccessAsync(entity.Id, "Sector deleted");
+        return await Result<int>.SuccessAsync(entity.Id, "Xóa ngành thành công");
     }
 
     public async Task<PaginatedResult<GetSectorWithPagingDto>> GetSectorsWithPaging(GetSectorsWithPaginationQuery query,

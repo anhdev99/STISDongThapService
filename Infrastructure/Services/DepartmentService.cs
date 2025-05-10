@@ -83,7 +83,7 @@ public class DepartmentService(
             var departmentParent = await _unitOfWork.Repository<Department>().Entities
                 .FirstOrDefaultAsync(x => x.Code == departmentCode && x.IsDeleted != true, cancellationToken);
             if (departmentParent == null)
-                throw new Exception("Department not found");
+                throw new Exception("Không tìm thấy phòng ban");
 
             data = await _unitOfWork.Repository<Department>().Entities
                 .Where(x => x.ParentId == departmentParent.Id && x.IsDeleted == false).ToListAsync(cancellationToken);
@@ -159,7 +159,7 @@ public class DepartmentService(
         _context.Departments.Add(entity);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return await Result<int>.SuccessAsync(entity.Id, "Department created");
+        return await Result<int>.SuccessAsync(entity.Id, "Phòng ban đã được tạo");
     }
     
     public async Task<Result<int>> Update(int id, UpdateDepartmentRequest model, CancellationToken cancellationToken)
@@ -167,7 +167,7 @@ public class DepartmentService(
         var entity = _context.Departments.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
         if (entity == null)
         {
-            throw new Exception($"Department not found: {id}");
+            throw new Exception($"Không tìm thấy phòng ban: {id}");
         }
         entity.Code = model.Code;
         entity.Name = model.Name;
@@ -176,7 +176,7 @@ public class DepartmentService(
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return await Result<int>.SuccessAsync(entity.Id, "Department updated");
+        return await Result<int>.SuccessAsync(entity.Id, "Cập nhật phòng ban thành công");
     }
     
     public async Task<Result<int>> Delete(int id, CancellationToken cancellationToken)
@@ -184,13 +184,13 @@ public class DepartmentService(
         var entity = _context.Departments.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
         if (entity == null)
         {
-            throw new Exception($"Department not found: {id}");
+            throw new Exception($"Không tìm thấy phòng ban: {id}");
         }
 
         entity.IsDeleted = true;
 
         await _context.SaveChangesAsync(cancellationToken);
-        return await Result<int>.SuccessAsync(entity.Id, "Department deleted");
+        return await Result<int>.SuccessAsync(entity.Id, "Đã xóa phòng ban");
     }
 
     public async Task<PaginatedResult<GetDepartmentWithPagingDto>> GetDepartmentsWithPaging(GetDepartmentsWithPaginationQuery query,

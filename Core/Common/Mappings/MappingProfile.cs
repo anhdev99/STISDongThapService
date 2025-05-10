@@ -1,5 +1,7 @@
 using System.Reflection;
 using AutoMapper;
+using Core.DTOs.Responses;
+using Core.Entities;
 
 namespace Core.Common.Mappings;
 

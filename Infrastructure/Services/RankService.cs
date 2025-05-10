@@ -36,7 +36,7 @@ public class RankService : IRankService
         _context.Ranks.Add(entity);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return await Result<int>.SuccessAsync(entity.Id, "Rank created");
+        return await Result<int>.SuccessAsync(entity.Id, "Tạo cấp bậc thành công");
     }
     
     public async Task<Result<int>> Update(int id, UpdateRankRequest model, CancellationToken cancellationToken)
@@ -44,7 +44,7 @@ public class RankService : IRankService
         var entity = _context.Ranks.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
         if (entity == null)
         {
-            throw new Exception($"Rank not found: {id}");
+            throw new Exception($"Không tìm thấy cấp bậc: {id}");
         }
         entity.Code = model.Code;
         entity.Name = model.Name;
@@ -54,7 +54,7 @@ public class RankService : IRankService
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return await Result<int>.SuccessAsync(entity.Id, "Rank updated");
+        return await Result<int>.SuccessAsync(entity.Id, "Cập nhật cấp bậc thành công");
     }
     
     public async Task<Result<int>> Delete(int id, CancellationToken cancellationToken)
@@ -62,13 +62,13 @@ public class RankService : IRankService
         var entity = _context.Ranks.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
         if (entity == null)
         {
-            throw new Exception($"Rank not found: {id}");
+            throw new Exception($"Cấp bậc không tìm thấy: {id}");
         }
 
         entity.IsDeleted = true;
 
         await _context.SaveChangesAsync(cancellationToken);
-        return await Result<int>.SuccessAsync(entity.Id, "Rank deleted");
+        return await Result<int>.SuccessAsync(entity.Id, "Xóa cấp bậc thành công");
     }
 
     public async Task<PaginatedResult<GetRankWithPagingDto>> GetRanksWithPaging(GetRanksWithPaginationQuery query,

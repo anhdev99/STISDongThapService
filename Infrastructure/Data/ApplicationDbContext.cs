@@ -41,6 +41,8 @@ public partial class ApplicationDbContext : DbContext
     public DbSet<Rank> Ranks => Set<Rank>();
     public DbSet<Sector> Sectors => Set<Sector>();
     public DbSet<TaskType> TaskTypes => Set<TaskType>();
+    
+    public DbSet<User> User => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
