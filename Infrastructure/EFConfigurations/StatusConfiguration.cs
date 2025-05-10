@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.EFConfigurations;
 
-public class StatusConfiguration : IEntityTypeConfiguration<Status>
+public class StatusConfiguration : IEntityTypeConfiguration<ProjectStatus>
 {
-    public void Configure(EntityTypeBuilder<Status> builder)
+    public void Configure(EntityTypeBuilder<ProjectStatus> builder)
     {
         builder.Property(p => p.Code)
             .IsRequired()

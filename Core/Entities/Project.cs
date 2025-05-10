@@ -10,7 +10,7 @@ public class Project : BaseAuditableEntity
     public int SectorId { get; set; }
     public Sector Sector { get; set; }
     public int? StatusId { get; set; }
-    public Status Status { get; set; }
+    public ProjectStatus ProjectStatus { get; set; }
     public int? ManagementLevelId { get; set; }
     public ManagementLevel ManagementLevel { get; set; }
     public int? TaskTypeId { get; set; }
