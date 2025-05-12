@@ -26,19 +26,20 @@ public class RoleService(
 
     public async Task<Result<int>> Create(CreateRoleRequest request, CancellationToken cancellationToken)
     {
-        var existingStatus = await _context.Roles
-            .AnyAsync(x => x.Code == request.Code.Trim(), cancellationToken);
+        var existingCodeStatus = await _unitOfWork.Repository<Role>().Entities
+            .Where(x => x.Code == request.Code && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        if (existingStatus)
+        if (existingCodeStatus != null)
         {
-            return await Result<int>.FailureAsync("Mã vai trò đã tồn tại");
+            throw new Exception("Mã vai trò đã tồn tại");
         }
-        
+
         var name = request.Name.Trim();
-        var existingRole = await _unitOfWork.Repository<Role>().Entities
+        var existingNameRole = await _unitOfWork.Repository<Role>().Entities
             .Where(x => x.Name.Equals(name) && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
-        if (existingRole != null)
+        if (existingNameRole != null)
         {
             throw new Exception("Tên vai trò đã tồn tại");
         }
@@ -61,6 +62,8 @@ public class RoleService(
 
     public async Task<Result<int>> Update(int id, UpdateRoleRequest request, CancellationToken cancellationToken)
     {
+        Console.WriteLine("id:" + id);
+        Console.WriteLine("name:" + request);
         var entity = await _unitOfWork.Repository<Role>().Entities
             .Where(x => x.Id == id && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
@@ -69,17 +72,23 @@ public class RoleService(
             throw new Exception("Vai trò không tồn tại");
         }
         
-        var existingStatus = await _context.Roles
-            .AnyAsync(x => x.Code == request.Code.Trim(), cancellationToken);
-
-        if (existingStatus)
+        if (request == null || string.IsNullOrWhiteSpace(request.Code))
         {
-            return await Result<int>.FailureAsync("Mã vai trò đã tồn tại");
+            throw new Exception("Thông tin yêu cầu không hợp lệ");
+        }
+
+        var existingStatus = await _unitOfWork.Repository<Role>().Entities
+            .Where(x => x.Code == request.Code && x.Id != request.id && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (existingStatus != null)
+        {
+            throw new Exception("Mã vai trò đã tồn tại");
         }
 
         var name = request.Name.Trim();
         var existingRole = await _unitOfWork.Repository<Role>().Entities
-            .Where(x => x.Name.Equals(name) && x.Id != id && x.IsDeleted == false)
+            .Where(x => x.Name.Equals(name) && x.Id != request.id && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
         if (existingRole != null)
         {

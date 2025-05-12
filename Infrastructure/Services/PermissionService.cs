@@ -26,11 +26,11 @@ public class PermissionService(
     public async Task<Result<int>> Create(CreatePermissionRequest request, CancellationToken cancellationToken)
     {
         
-        var existingStatus = await _context.Permissions
-            .AnyAsync(x => x.Code == request.Code, cancellationToken);
+        var existingCodeStatus =  await _unitOfWork.Repository<Permission>().Entities
+            .Where(x => x.Code == request.Code && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        if (existingStatus)
-        {
+        if (existingCodeStatus != null){
             return await Result<int>.FailureAsync("Mã quyền đã tồn tại");
         }
         
@@ -68,12 +68,13 @@ public class PermissionService(
             throw new Exception("Không tìm thấy quyền");
         }
         
-        var existingStatus = await _context.Permissions
-            .AnyAsync(x => x.Code == request.Code.Trim(), cancellationToken);
+        var existingStatus = await _unitOfWork.Repository<Permission>().Entities
+            .Where(x => x.Code == request.Code && x.Id != request.id && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        if (existingStatus)
+        if (existingStatus != null)
         {
-            return await Result<int>.FailureAsync("Mã vai trò đã tồn tại");
+            return await Result<int>.FailureAsync("Mã quyền đã tồn tại");
         }
 
         if (entity.IsProtected)
@@ -83,7 +84,7 @@ public class PermissionService(
 
         var name = request.Name.Trim();
         var existingPermission = await _unitOfWork.Repository<Permission>().Entities
-            .Where(x => x.Name.Equals(name) && x.Id != id && x.IsDeleted == false)
+            .Where(x => x.Name.Equals(name) && x.Id != request.id && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
         if (existingPermission != null)
         {

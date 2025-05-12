@@ -9,6 +9,7 @@ public record CreateRoleRequest(
     bool Priority);
 
 public record UpdateRoleRequest(
+    int id,
     string Name,
     string Description,
     string DisplayName,

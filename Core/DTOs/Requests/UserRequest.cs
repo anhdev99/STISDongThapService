@@ -13,6 +13,7 @@ public record CreateUserRequest(
     );
 
 public record UpdateUserRequest(
+    int id,
     string UserName,
     string FirstName,
     string LastName,

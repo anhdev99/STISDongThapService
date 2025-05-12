@@ -12,6 +12,7 @@ public class GetPermissionDto : IMapFrom<Permission>
     public string? Code { get; set; }
     public bool Priority{get;set;}
     public bool IsProtected{get;set;}
+    public int Order { get; set; }
 
     public void Mapping(Profile profile)
     {
@@ -26,6 +27,7 @@ public class GetAllPermissionsDto : IMapFrom<Permission>
     public string? Description { get; set; }
     public string? Code { get; set; }
     public bool Priority{get;set;}
+    public int Order { get; set; }
 
 
     public void Mapping(Profile profile)
@@ -41,6 +43,7 @@ public class GetPermissionWithPaginationDto : IMapFrom<Permission>
     public string? Description { get; set; }
     public string? Code { get; set; }
     public bool Priority{get;set;}
+    public int Order { get; set; }
 
 
     public void Mapping(Profile profile)
