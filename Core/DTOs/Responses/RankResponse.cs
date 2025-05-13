@@ -9,7 +9,7 @@ public class GetRankWithPagingDto : IMapFrom<Rank>
     public string Code { get; set; }
     public string Name { get; set; }
     public int Order { get; set; }
-    public string? BackgroundColor { get; set; }
+    public string? BackGroundColor { get; set; }
     public string? Color { get; set; }
 }
 
@@ -19,7 +19,7 @@ public class GetRankDto : IMapFrom<Rank>
     public string Code { get; set; }
     public string Name { get; set; }
     public int Order { get; set; }
-    public string? BackgroundColor { get; set; }
+    public string? BackGroundColor { get; set; }
     public string? Color { get; set; }
 }
 

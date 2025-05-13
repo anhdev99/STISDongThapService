@@ -12,6 +12,7 @@ public class DepartmentResponse : IMapFrom<Department>
     public string Name { get; set; }
     public int Order { get; set; }
     public int? ParentId { get; set; }
+    public List<DepartmentResponse>? Children { get; set; }
 }
 
 public class DepartmentTreeDto : IMapFrom<Department>
@@ -37,8 +38,7 @@ public class GetDepartmentWithPagingDto : IMapFrom<Department>
     public string Code { get; set; }
     public string Name { get; set; }
     public int Order { get; set; }
-    public string? BackgroundColor { get; set; }
-    public string? Color { get; set; }
+    public int? ParentId { get; set; } 
 }
 
 public class GetDepartmentDto : IMapFrom<Department>
@@ -47,6 +47,5 @@ public class GetDepartmentDto : IMapFrom<Department>
     public string Code { get; set; }
     public string Name { get; set; }
     public int Order { get; set; }
-    public string? BackgroundColor { get; set; }
-    public string? Color { get; set; }
+    public int? ParentId { get; set; } 
 }

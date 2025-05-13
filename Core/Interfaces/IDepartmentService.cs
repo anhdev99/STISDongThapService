@@ -15,5 +15,8 @@ namespace Core.Interfaces
         Task<PaginatedResult<GetDepartmentWithPagingDto>> GetDepartmentsWithPaging(GetDepartmentsWithPaginationQuery query,
             CancellationToken cancellationToken);
         Task<Result<GetDepartmentDto>> GetById(int id, CancellationToken cancellationToken);
+        Task<Result<List<GetDepartmentDto>>> GetAllDepartment( CancellationToken cancellationToken);
+
+        Task<Result<List<DepartmentResponse>>> GetFullDepartmentTree(CancellationToken cancellationToken);
     }
 }

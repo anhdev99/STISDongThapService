@@ -40,7 +40,7 @@ public class ProjectStatusesController(IStatusService Statuseservice, ILogger<Pr
     }
 
     [HttpGet]
-    [Route("GetDevicesWithPaging")]
+    [Route("get-pagination")]
     public async Task<ActionResult<PaginatedResult<GetStatusesWithPagingDto>>> GetRankWithPaging(
         [FromQuery] GetStatusesWithPaginationQuery query, CancellationToken cancellationToken)
     {

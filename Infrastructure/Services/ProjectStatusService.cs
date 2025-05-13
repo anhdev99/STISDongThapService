@@ -53,7 +53,7 @@ public class ProjectStatusService : IStatusService
             throw new Exception($"Không tìm thấy trạng thái: {id}");
         }
         var existingStatus = await _context.Status
-            .AnyAsync(x => x.Code == model.Code.Trim(), cancellationToken);
+            .AnyAsync(x => x.Code == model.Code.Trim() && x.Id != id, cancellationToken);
 
         if (existingStatus)
         {

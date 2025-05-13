@@ -57,7 +57,7 @@ public class TaskTypeService : ITaskTypeService
         await _context.SaveChangesAsync(cancellationToken);
         
         var existingStatus = await _context.TaskTypes
-            .AnyAsync(x => x.Code == model.Code.Trim(), cancellationToken);
+            .AnyAsync(x => x.Code == model.Code.Trim() && x.Id != id, cancellationToken);
 
         if (existingStatus)
         {

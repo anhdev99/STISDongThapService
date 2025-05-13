@@ -40,7 +40,7 @@ public class DepartmentsController(IMediator mediator, ILogger<DepartmentsContro
     }
 
     [HttpGet]
-    [Route("GetDevicesWithPaging")]
+    [Route("get-pagination")]
     public async Task<ActionResult<PaginatedResult<GetDepartmentWithPagingDto>>> GetDepartmentWithPaging(
         [FromQuery] GetDepartmentsWithPaginationQuery query, CancellationToken cancellationToken)
     {
@@ -53,4 +53,19 @@ public class DepartmentsController(IMediator mediator, ILogger<DepartmentsContro
     {
         return await Result<List<DepartmentTreeDto>>.SuccessAsync(await departmentService.GetDepartments("",cancellationToken));
     }
+    
+    [HttpGet]
+    [Route("get-all")]
+    public async Task<Result<List<GetDepartmentDto>>> GetDepartmentAll(CancellationToken cancellationToken)
+    {
+        return await departmentService.GetAllDepartment( cancellationToken);
+    }
+    
+    [HttpGet("get-children")]
+    public async Task<IActionResult> GetChildrenDepartments( CancellationToken cancellationToken)
+    {
+        var result = await departmentService.GetFullDepartmentTree( cancellationToken);
+        return Ok(result);
+    }
+
 }

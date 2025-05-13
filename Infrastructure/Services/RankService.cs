@@ -63,11 +63,11 @@ public class RankService : IRankService
         await _context.SaveChangesAsync(cancellationToken);
         
         var existingStatus = await _context.Ranks
-            .AnyAsync(x => x.Code == model.Code.Trim(), cancellationToken);
+            .AnyAsync(x => x.Code == model.Code.Trim() &&  x.Id != id, cancellationToken);
 
         if (existingStatus)
         {
-            return await Result<int>.FailureAsync("Mã vai trò đã tồn tại");
+            return await Result<int>.FailureAsync("Mã cấp bậc đã tồn tại");
         }
         
 

@@ -40,7 +40,7 @@ public class SectorsController(ISectorService SectorService, ILogger<SectorsCont
     }
 
     [HttpGet]
-    [Route("GetDevicesWithPaging")]
+    [Route("get-pagination")]
     public async Task<ActionResult<PaginatedResult<GetSectorWithPagingDto>>> GetSectorWithPaging(
         [FromQuery] GetSectorsWithPaginationQuery query, CancellationToken cancellationToken)
     {

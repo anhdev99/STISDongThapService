@@ -40,7 +40,7 @@ public class TaskTypesController(ITaskTypeService TaskTypeService, ILogger<TaskT
     }
 
     [HttpGet]
-    [Route("GetDevicesWithPaging")]
+    [Route("get-pagination")]
     public async Task<ActionResult<PaginatedResult<GetTaskTypeWithPagingDto>>> GetTaskTypeWithPaging(
         [FromQuery] GetTaskTypesWithPaginationQuery query, CancellationToken cancellationToken)
     {

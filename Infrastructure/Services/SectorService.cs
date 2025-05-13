@@ -57,7 +57,7 @@ public class SectorService : ISectorService
         entity.Order = model.Order;
         
         var existingStatus = await _context.Sectors
-            .AnyAsync(x => x.Code == model.Code, cancellationToken);
+            .AnyAsync(x => x.Code == model.Code && x.Id != id, cancellationToken);
 
         if (existingStatus)
         {

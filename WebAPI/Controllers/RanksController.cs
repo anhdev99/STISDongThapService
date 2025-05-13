@@ -40,7 +40,7 @@ public class RanksController(IRankService rankService, ILogger<RanksController> 
     }
 
     [HttpGet]
-    [Route("GetDevicesWithPaging")]
+    [Route("get-pagination")]
     public async Task<ActionResult<PaginatedResult<GetRankWithPagingDto>>> GetRankWithPaging(
         [FromQuery] GetRanksWithPaginationQuery query, CancellationToken cancellationToken)
     {
