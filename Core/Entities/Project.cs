@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using Shared;
 
 namespace Core.Entities;
@@ -10,6 +11,7 @@ public class Project : BaseAuditableEntity
     public int SectorId { get; set; }
     public Sector Sector { get; set; }
     public int? StatusId { get; set; }
+    [ForeignKey("StatusId")]
     public ProjectStatus ProjectStatus { get; set; }
     public int? ManagementLevelId { get; set; }
     public ManagementLevel ManagementLevel { get; set; }
