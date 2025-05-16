@@ -25,11 +25,11 @@ public class SectorService : ISectorService
     public async Task<Result<int>> Create(CreateSectorRequest model, CancellationToken cancellationToken)
     {
         var existingStatus = await _context.Sectors
-            .AnyAsync(x => x.Code == model.Code, cancellationToken);
+            .AnyAsync(x => x.Code == model.Code && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
         {
-            return await Result<int>.FailureAsync("Mã ngành đã tồn tại");
+            throw new Exception("Mã ngành đã tồn tại");
         }
         
         var entity = new Sector()
@@ -57,11 +57,11 @@ public class SectorService : ISectorService
         entity.Order = model.Order;
         
         var existingStatus = await _context.Sectors
-            .AnyAsync(x => x.Code == model.Code && x.Id != id, cancellationToken);
+            .AnyAsync(x => x.Code == model.Code && x.Id != id && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
         {
-            return await Result<int>.FailureAsync("Mã ngành đã tồn tại");
+            throw new Exception("Mã ngành đã tồn tại");
         }
 
         await _context.SaveChangesAsync(cancellationToken);

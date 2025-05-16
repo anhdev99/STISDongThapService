@@ -25,11 +25,11 @@ public class TaskTypeService : ITaskTypeService
     public async Task<Result<int>> Create(CreateTaskTypeRequest model, CancellationToken cancellationToken)
     {
         var existingStatus = await _context.TaskTypes
-            .AnyAsync(x => x.Code == model.Code, cancellationToken);
+            .AnyAsync(x => x.Code == model.Code && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
         {
-            return await Result<int>.FailureAsync("Mã loại nhiệm vụ đã tồn tại");
+            throw new Exception("Mã loại nhiệm vụ đã tồn tại");
         }
         
         var entity = new TaskType()
@@ -57,11 +57,11 @@ public class TaskTypeService : ITaskTypeService
         await _context.SaveChangesAsync(cancellationToken);
         
         var existingStatus = await _context.TaskTypes
-            .AnyAsync(x => x.Code == model.Code.Trim() && x.Id != id, cancellationToken);
+            .AnyAsync(x => x.Code == model.Code.Trim() && x.Id != id && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
         {
-            return await Result<int>.FailureAsync("Mã loại nhiệm vụ đã tồn tại");
+            throw new Exception("Mã loại nhiệm vụ đã tồn tại");
         }
         
 

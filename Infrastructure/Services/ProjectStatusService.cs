@@ -25,11 +25,11 @@ public class ProjectStatusService : IStatusService
     public async Task<Result<int>> Create(CreateStatusRequest model, CancellationToken cancellationToken)
     {
         var existingStatus = await _context.Status
-            .AnyAsync(x => x.Code == model.Code, cancellationToken);
+            .AnyAsync(x => x.Code == model.Code && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
         {
-            return await Result<int>.FailureAsync("Mã trạng thái đã tồn tại");
+            throw new Exception("Mã trạng thái đã tồn tại");
         }
 
         var entity = new ProjectStatus
@@ -57,7 +57,7 @@ public class ProjectStatusService : IStatusService
 
         if (existingStatus)
         {
-            return await Result<int>.FailureAsync("Mã vai trò đã tồn tại");
+            throw new Exception("Mã vai trò đã tồn tại");
         }
         
         entity.Code = model.Code;

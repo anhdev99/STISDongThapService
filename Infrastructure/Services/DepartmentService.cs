@@ -150,11 +150,11 @@ public class DepartmentService(
     public async Task<Result<int>> Create(CreateDepartmentRequest model, CancellationToken cancellationToken)
     {
         var existingStatus = await _context.Departments
-            .AnyAsync(x => x.Code == model.Code, cancellationToken);
+            .AnyAsync(x => x.Code == model.Code && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
         {
-            return await Result<int>.FailureAsync("Mã đơn vị đã tồn tại");
+            throw new Exception("Mã đơn vị đã tồn tại");
         }
         
         var entity = new Department()
@@ -180,11 +180,11 @@ public class DepartmentService(
         }
         
         var existingStatus = await _context.Departments
-            .AnyAsync(x => x.Code == model.Code.Trim() && x.Id != id, cancellationToken);
+            .AnyAsync(x => x.Code == model.Code.Trim() && x.Id != id && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
         {
-            return await Result<int>.FailureAsync("Mã vai trò đã tồn tại");
+            throw new Exception("Mã vai trò đã tồn tại");
         }
         
         entity.Code = model.Code;
@@ -251,34 +251,31 @@ public class DepartmentService(
     {
         var allDepartments = await _context.Departments
             .Where(x => !x.IsDeleted)
+            .OrderBy(x => x.Order) // đảm bảo danh sách ban đầu có thứ tự
             .ToListAsync(cancellationToken);
 
-        // Nhóm theo ParentId để tạo cây
         var lookup = allDepartments.ToLookup(d => d.ParentId);
 
-        // Hàm đệ quy để xây dựng cây
         async Task<List<DepartmentResponse>> BuildTree(int? parentId)
         {
-            var tasks = lookup[parentId].Select(async dept => new DepartmentResponse
-            {
-                Id = dept.Id,
-                Code = dept.Code,
-                Name = dept.Name,
-                Order = dept.Order,
-                ParentId = dept.ParentId,
-                // Đệ quy để tạo cây con
-                Children = await BuildTree(dept.Id) // Đợi kết quả đệ quy
-            }).ToList();
+            // Duyệt qua các node con theo thứ tự Order
+            var children = lookup[parentId]
+                .OrderBy(d => d.Order)
+                .Select(async dept => new DepartmentResponse
+                {
+                    Id = dept.Id,
+                    Code = dept.Code,
+                    Name = dept.Name,
+                    Order = dept.Order,
+                    ParentId = dept.ParentId,
+                    Children = await BuildTree(dept.Id)
+                });
 
-            // Đợi tất cả task hoàn thành và chuyển đổi kết quả thành List
-            var results = await Task.WhenAll(tasks);
-
-            return results.ToList(); // Chuyển mảng thành List
+            var results = await Task.WhenAll(children);
+            return results.ToList();
         }
 
-        // Bắt đầu từ root: ParentId == null
         var departmentTree = await BuildTree(null);
-
         return Result<List<DepartmentResponse>>.Success(departmentTree);
     }
 }

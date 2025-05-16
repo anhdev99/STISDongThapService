@@ -31,7 +31,7 @@ public class PermissionService(
             .FirstOrDefaultAsync(cancellationToken);
 
         if (existingCodeStatus != null){
-            return await Result<int>.FailureAsync("Mã quyền đã tồn tại");
+            throw new Exception("Mã quyền đã tồn tại");
         }
         
         var name = request.Name.Trim();
@@ -74,7 +74,7 @@ public class PermissionService(
 
         if (existingStatus != null)
         {
-            return await Result<int>.FailureAsync("Mã quyền đã tồn tại");
+            throw new Exception("Mã quyền đã tồn tại");
         }
 
         if (entity.IsProtected)
@@ -131,7 +131,6 @@ public class PermissionService(
         GetPermissionsWithPaginationQuery request, CancellationToken cancellationToken)
     {
         var query = _unitOfWork.Repository<Permission>().Entities.Where(x => x.IsDeleted == false);
-
         if (!string.IsNullOrWhiteSpace(request.Keywords))
             query = query.Where(x => x.Name.ToLower().Trim().Contains(request.Keywords.ToLower().Trim()));
 
