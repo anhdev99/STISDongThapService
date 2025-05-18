@@ -52,6 +52,7 @@ public class RoleService(
             Priority = request.Priority,
             Code = request.Code,
             DisplayName = request.DisplayName,
+            Color = request.Color,
            
         };
         await _unitOfWork.Repository<Role>().AddAsync(entity);
@@ -106,6 +107,7 @@ public class RoleService(
         entity.Priority = request.Priority;
         entity.DisplayName = request.DisplayName;
         entity.Code = request.Code;
+        entity.Color = request.Color;
 
         await _unitOfWork.Repository<Role>().UpdateAsync(entity);
         await _unitOfWork.Save(cancellationToken);
@@ -312,7 +314,7 @@ public class RoleService(
     public async Task<Result<int>> ConfigUserRole(ConfigUserRoleRequest request, CancellationToken cancellationToken)
     {
         Console.WriteLine("UserName: " + request.UserName);
-        Console.WriteLine("RoleId: " + request.RoleId);
+        Console.WriteLine("RoleId: " + request.roleCode);
         Console.WriteLine("cancellationToken: " + cancellationToken);
 
         // Check for null user profile
@@ -325,12 +327,26 @@ public class RoleService(
         {
             throw new Exception($"Không tìm thấy tài khoản {request.UserName}");
         }
-
+        
         var userId = userProfile.Id;
-        Console.WriteLine("UserId: " + userId);
+        Console.WriteLine("userId: " + userId);
+        
+        // check for null role
+        var role = await _unitOfWork.Repository<Role>().Entities
+            .Where(x => x.Code == request.roleCode && x.IsDeleted != true)
+            .ProjectTo<GetRoleDto>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        if (role == null)
+        {
+            throw new Exception($"Không tìm thấy quyền {request.roleCode}");
+        }
+
+        var roleId = role.Id;
+        Console.WriteLine("roleId: " + roleId);
 
         var rolePermission = await _unitOfWork.Repository<UserRole>().Entities
-            .Where(x => x.UserId == userId && x.RoleId == request.RoleId)
+            .Where(x => x.UserId == userId && x.RoleId == roleId)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (rolePermission == null)
@@ -338,7 +354,7 @@ public class RoleService(
             var newEntity = new UserRole
             {
                 UserId = userId,
-                RoleId = request.RoleId
+                RoleId = roleId
             };
             await _unitOfWork.Repository<UserRole>().AddAsync(newEntity);
             await _unitOfWork.Save(cancellationToken);

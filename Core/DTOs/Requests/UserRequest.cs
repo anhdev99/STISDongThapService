@@ -9,16 +9,18 @@ public record CreateUserRequest(
     string FirstName,
     string LastName,
     string PhoneNumber,
-    string Email
+    string Email,
+    int DepartmentId
     );
 
 public record UpdateUserRequest(
-    int id,
+    int Id,
     string UserName,
     string FirstName,
     string LastName,
     string PhoneNumber,
-    string Email
+    string Email,
+    int DepartmentId
     );
 
 public class VerifyRequest
@@ -42,4 +44,7 @@ public class ResetPasswordRequest
 public record GetUsersWithPaginationQuery(
     int PageNumber,
     int PageSize,
-    string? Keywords);
+    string? Keywords,
+    int? DepartmentId,
+    int? RoleId
+    );

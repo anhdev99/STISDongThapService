@@ -13,4 +13,11 @@ public class User : BaseAuditableEntity
     public string? Email { get; set; }
     public bool IsVerified { get; set; }
     public List<RefreshToken> RefreshTokens { get; set; }
+    
+    public int? DepartmentId { get; set; }
+    public Department? Department { get; set; }
+    
+    public virtual ICollection<UserRole> UserRoles { get; set; }
+
+    
 }

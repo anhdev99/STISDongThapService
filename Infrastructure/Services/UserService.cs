@@ -51,6 +51,7 @@ public class UserService(
             FirstName = request.FirstName,
             PhoneNumber = request.PhoneNumber,
             IsDeleted = false,
+            DepartmentId = request.DepartmentId
         };
 
         entity.PasswordHash = passwordHash;
@@ -87,6 +88,7 @@ public class UserService(
         entity.LastName = request.LastName;
         entity.PhoneNumber = request.PhoneNumber;
         entity.Email = request.Email;
+        entity.DepartmentId = request.DepartmentId;
 
         await _unitOfWork.Repository<User>().UpdateAsync(entity);
         await _unitOfWork.Save(cancellationToken);
@@ -116,12 +118,29 @@ public class UserService(
     public async Task<PaginatedResult<GetUserWithPaginationDto>> GetUsersWithPagination(
         GetUsersWithPaginationQuery request, CancellationToken cancellationToken)
     {
-        var query = _unitOfWork.Repository<User>().Entities.Where(x => x.IsDeleted == false);
+        var query = _unitOfWork.Repository<User>().Entities
+            .Include(u => u.UserRoles.Where(ur => !ur.IsDeleted))
+            .ThenInclude(ur => ur.Role)
+            .Where(u => !u.IsDeleted);
 
         if (!string.IsNullOrWhiteSpace(request.Keywords))
-            query = query.Where(x => x.UserName.ToLower().Trim().Contains(request.Keywords.ToLower().Trim()));
+        {
+            var keyword = request.Keywords.Trim().ToLower();
+            query = query.Where(x => x.UserName.ToLower().Contains(keyword));
+        }
 
-        return await query.ProjectTo<GetUserWithPaginationDto>(_mapper.ConfigurationProvider)
+        if (request.DepartmentId.HasValue)
+        {
+            query = query.Where(x => x.DepartmentId == request.DepartmentId.Value);
+        }
+
+        if (request.RoleId.HasValue)
+        {
+            query = query.Where(x => x.UserRoles.Any(ur => ur.RoleId == request.RoleId));
+        }
+
+        return await query
+            .ProjectTo<GetUserWithPaginationDto>(_mapper.ConfigurationProvider)
             .ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
     }
 

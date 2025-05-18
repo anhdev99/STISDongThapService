@@ -15,6 +15,7 @@ public class GetRoleDto : IMapFrom<Role>
 
     public bool Priority {get; set;}
     public bool IsProtected{get; set;}
+    public string Color { get; set; }
 
     public void Mapping(Profile profile)
     {
@@ -47,6 +48,7 @@ public class GetRoleWithPaginationDto : IMapFrom<Role>
     public string? Code { get; set; }
     public bool Priority {get; set; }
     public int Order {get; set; }
+    public string Color { get; set; }
 
     public void Mapping(Profile profile)
     {
@@ -58,10 +60,4 @@ public class RolePermissionDto
     public string Group { get; set; }
     public List<string> Permissions { get; set; }
 
-}
-public class BaseRole
-{
-    public string Code { get; set; }
-    public string DisplayName { get; set; }
-    public string Color { get; set; }
 }
