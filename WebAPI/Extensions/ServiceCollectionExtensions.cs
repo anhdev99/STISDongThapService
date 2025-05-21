@@ -53,6 +53,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IStatusService, ProjectStatusService>();
         services.AddScoped<ITaskTypeService, TaskTypeService>();
         services.AddScoped<IProjectService, ProjectService>();
+        services.AddScoped<IIdentityService, IdentityService>();
 
         // Handlers
         // services.AddTransient<INotificationHandler<FileDeletedEvent>, FileDeletedEventHandler>();

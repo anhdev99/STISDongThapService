@@ -67,5 +67,4 @@ public class DepartmentsController(IMediator mediator, ILogger<DepartmentsContro
         var result = await departmentService.GetFullDepartmentTree( cancellationToken);
         return Ok(result);
     }
-
 }

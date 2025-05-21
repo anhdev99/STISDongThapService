@@ -43,6 +43,7 @@ public partial class ApplicationDbContext : DbContext
     public DbSet<TaskType> TaskTypes => Set<TaskType>();
     
     public DbSet<User> User => Set<User>();
+    public DbSet<UserSession> UserSessions => Set<UserSession>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

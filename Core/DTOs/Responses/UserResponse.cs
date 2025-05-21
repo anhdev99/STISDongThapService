@@ -8,12 +8,14 @@ public class UserDto: IMapFrom<User>
 {
     public int Id { get; set; }
     public string UserName { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
     public string FullName { get; set; }
     public int Status { get; set; }
 
     public void Mapping(Profile profile)
     {
-        profile.CreateMap<User, UserDto>();
+        profile.CreateMap<User, UserDto>().ForMember(x => x.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
     }
 }
 public class GetUserDto : IMapFrom<User>

@@ -41,8 +41,6 @@ public class UserService(
         byte[] passwordHash, passwordSalt;
         PasswordHelper.GeneratePasswordHash(request.Password, out passwordHash, out passwordSalt);
 
-
-
         var entity = new User
         {
             UserName = request.UserName,
@@ -159,6 +157,20 @@ public class UserService(
         return await Result<GetUserDto>.SuccessAsync(entity);
     }
 
+    public async Task<GetUserDto> GetById(int id)
+    {
+        var entity = await _unitOfWork.Repository<User>().Entities
+            .Where(x => x.Id == id && x.IsDeleted == false)
+            .ProjectTo<GetUserDto>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        if (entity == null)
+        {
+            throw new Exception("Không tìm thấy tài khoản");
+        }
+        return entity;
+    }
+
     public async Task<Result<List<GetUserDto>>> GetAll(CancellationToken cancellationToken)
     {
         var data = await _unitOfWork.Repository<User>().Entities
@@ -236,7 +248,12 @@ public class UserService(
 
         _logger.LogInformation($"Tài khoản {username} đã được reset mật khẩu");
 
-        // Có thể gửi email ở đây nếu có EmailService
         return await Result<string>.SuccessAsync(newPassword, "Reset mật khẩu thành công");
+    }
+
+    public async Task<User> GetUserByUserNameAsync(string userName, CancellationToken cancellationToken)
+    {
+        return await _unitOfWork.Repository<User>().Entities.Where(x => x.UserName.ToLower() == userName.ToLower() && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }
