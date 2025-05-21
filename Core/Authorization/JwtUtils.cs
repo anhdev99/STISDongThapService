@@ -69,7 +69,8 @@ public class JwtUtils(IJwtSettings jwtSettings) : IJwtUtils
             Token = GenerateHashRefreshToken(user),
             Expires = DateTime.UtcNow.AddDays(7),
             Created = DateTime.UtcNow,
-            CreatedByIp = ipAddress
+            CreatedByIp = ipAddress,
+            UserId = user.Id
         };
 
         return refreshToken;

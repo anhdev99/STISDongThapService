@@ -1,10 +1,13 @@
 using System.Reflection;
 using Core.Authorization;
+using Core.Events;
 using Core.Interfaces;
 using Core.Interfaces.Settings;
 using Core.Middleware;
 using HealthChecks.UI.Client;
 using Infrastructure.Data;
+using Infrastructure.Data.SeedData;
+using Infrastructure.Messaging.Consumers;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Infrastructure.Settings;
@@ -54,9 +57,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITaskTypeService, TaskTypeService>();
         services.AddScoped<IProjectService, ProjectService>();
         services.AddScoped<IIdentityService, IdentityService>();
-
         // Handlers
-        // services.AddTransient<INotificationHandler<FileDeletedEvent>, FileDeletedEventHandler>();
+        services.AddTransient<INotificationHandler<FileDeletedEvent>, FileDeletedEventHandler>();
 
         services.AddSeeders();
     }
@@ -107,6 +109,7 @@ public static class ServiceCollectionExtensions
   
     private static void AddSeeders(this IServiceCollection services)
     {
-        // services.AddTransient<ISeeder, MenuSeeder>();
+        services.AddTransient<ISeeder, RoleSeeder>();
+        services.AddTransient<ISeeder, DepartmentSeeder>();
     } 
 }

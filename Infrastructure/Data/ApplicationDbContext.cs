@@ -23,6 +23,7 @@ public partial class ApplicationDbContext : DbContext
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<Permission> Permissions => Set<Permission>();
     public DbSet<Menu> Menus => Set<Menu>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<RoleMenu> RoleMenus => Set<RoleMenu>();
