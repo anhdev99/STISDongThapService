@@ -18,6 +18,4 @@ public class User : BaseAuditableEntity
     public Department? Department { get; set; }
     
     public virtual ICollection<UserRole> UserRoles { get; set; }
-
-    
 }

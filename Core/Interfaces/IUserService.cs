@@ -22,4 +22,5 @@ public interface IUserService
     Task<Result<bool>> ChangePassword(string username, string oldPassword, string newPassword, string confirmPassword, CancellationToken cancellationToken);
     Task<Result<string>> ResetPassword(string username, CancellationToken cancellationToken);
     Task<User?> GetUserByUserNameAsync(string userName, CancellationToken cancellationToken);
+    Task<Result<GetMeDto>> GetMe(CancellationToken cancellationToken);
 }

@@ -42,7 +42,7 @@ public class GetAllUsersDto : IMapFrom<User>
     public int Id { get; set; }
     public string UserName { get; set; }
 
-    public string FullName { get; set; } // Giữ lại FullName thay vì FirstName và LastName
+    public string FullName { get; set; }
     public string? PhoneNumber { get; set; }
     public string? Email { get; set; }
     public bool? IsVerified { get; set; }
@@ -50,10 +50,9 @@ public class GetAllUsersDto : IMapFrom<User>
     public void Mapping(Profile profile)
     {
         profile.CreateMap<User, GetAllUsersDto>()
-            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}")); // Kết hợp FirstName và LastName thành FullName
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
     }
 }
-
 
 public class GetUserWithPaginationDto : IMapFrom<User>
 {
@@ -66,7 +65,7 @@ public class GetUserWithPaginationDto : IMapFrom<User>
     public string? Email { get; set; }
     public bool? IsVerified { get; set; }
     public List<BaseRole>? Roles { get; set; }
-    public string DepartmentName { get; set; }  // sửa thành string
+    public string DepartmentName { get; set; }
 
     public void Mapping(Profile profile)
     {
@@ -79,5 +78,22 @@ public class GetUserWithPaginationDto : IMapFrom<User>
                 Color = ur.Role.Color,
             })))
             .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department != null ? src.Department.Name : string.Empty));
+    }
+}
+
+public class GetMeDto : IMapFrom<User>
+{
+    public int Id { get; set; }
+    public string UserName { get; set; }
+    public string FullName { get; set; }
+    public string? DepartmentCode { get; set; }
+    public string? DepartmentName { get; set; }
+
+    public void Mapping(Profile profile)
+    {
+        profile.CreateMap<User, GetMeDto>()
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.LastName} {src.FirstName}"))
+            .ForMember(dest => dest.DepartmentCode, opt => opt.MapFrom(src => src.Department!.Code))
+            .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department!.Name));
     }
 }

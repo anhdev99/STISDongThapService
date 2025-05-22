@@ -251,9 +251,19 @@ public class UserService(
         return await Result<string>.SuccessAsync(newPassword, "Reset mật khẩu thành công");
     }
 
-    public async Task<User> GetUserByUserNameAsync(string userName, CancellationToken cancellationToken)
+    public async Task<User?> GetUserByUserNameAsync(string userName, CancellationToken cancellationToken)
     {
         return await _unitOfWork.Repository<User>().Entities.Where(x => x.UserName.ToLower() == userName.ToLower() && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<Result<GetMeDto>> GetMe(CancellationToken cancellationToken)
+    {
+        var user = await _unitOfWork.Repository<User>().Entities.Where(x => x.UserName == UserName && x.IsDeleted == false)
+            .ProjectTo<GetMeDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(cancellationToken);
+        if(user == null)
+            throw new Exception("Không tìm thấy tài khoản");
+        
+        return await Result<GetMeDto>.SuccessAsync(user);
     }
 }

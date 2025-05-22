@@ -8,7 +8,7 @@ using Shared;
 namespace WebAPI.Controllers;
 
 [Authorize]
-public class UsersController(ILogger<UsersController> logger, IUserService UserService)
+public class UsersController(ILogger<UsersController> logger, IUserService userService)
     : ApiControllerBase(logger)
 {
     [HttpPost]
@@ -20,7 +20,7 @@ public class UsersController(ILogger<UsersController> logger, IUserService UserS
         {
             return BadRequest(ModelState);
         }
-        return await UserService.Create(request, cancellationToken);
+        return await userService.Create(request, cancellationToken);
     }
 
     [HttpPost]
@@ -33,21 +33,21 @@ public class UsersController(ILogger<UsersController> logger, IUserService UserS
             return BadRequest(ModelState);
         }
 
-        return await UserService.Update(id, request, cancellationToken);
+        return await userService.Update(id, request, cancellationToken);
     }
 
     [HttpPost]
     [Route("delete/{id}")]
     public async Task<ActionResult<Result<int>>> Delete([FromRoute] int id, CancellationToken cancellationToken)
     {
-        return await UserService.Delete(id, cancellationToken);
+        return await userService.Delete(id, cancellationToken);
     }
 
     [HttpGet]
     [Route("get-by-id/{id}")]
     public async Task<ActionResult<Result<GetUserDto>>> GetById(int id, CancellationToken cancellationToken)
     {
-        return await UserService.GetById(id, cancellationToken);
+        return await userService.GetById(id, cancellationToken);
     }
 
     [HttpGet]
@@ -59,14 +59,14 @@ public class UsersController(ILogger<UsersController> logger, IUserService UserS
         {
             return BadRequest(ModelState);
         }
-        return await UserService.GetUsersWithPagination(query, cancellationToken);
+        return await userService.GetUsersWithPagination(query, cancellationToken);
     }
 
     [HttpGet]
     [Route("get-all")]
     public async Task<ActionResult<Result<List<GetUserDto>>>> GetAll(CancellationToken cancellationToken)
     {
-        return await UserService.GetAll(cancellationToken);
+        return await userService.GetAll(cancellationToken);
     }
 
     [HttpPost]
@@ -78,7 +78,7 @@ public class UsersController(ILogger<UsersController> logger, IUserService UserS
         {
             return BadRequest(ModelState);
         }
-        return await UserService.Verify(request.UserName, cancellationToken);
+        return await userService.Verify(request.UserName, cancellationToken);
     }
 
     [HttpPost]
@@ -90,11 +90,10 @@ public class UsersController(ILogger<UsersController> logger, IUserService UserS
         {
             return BadRequest(ModelState);
         }
-        return await UserService.ChangePassword(
+        return await userService.ChangePassword(
             request.UserName, request.OldPassword, request.NewPassword, request.ConfirmPassword, cancellationToken);
     }
 
-    // 🔁 Reset password
     [HttpPost]
     [Route("reset-password")]
     public async Task<ActionResult<Result<string>>> ResetPassword([FromBody] ResetPasswordRequest request,
@@ -104,6 +103,13 @@ public class UsersController(ILogger<UsersController> logger, IUserService UserS
         {
             return BadRequest(ModelState);
         }
-        return await UserService.ResetPassword(request.UserName, cancellationToken);
+        return await userService.ResetPassword(request.UserName, cancellationToken);
+    }
+    
+    [HttpGet]
+    [Route("get-me")]
+    public async Task<ActionResult<Result<GetMeDto>>> GetMe(CancellationToken cancellationToken)
+    {
+        return await userService.GetMe(cancellationToken);
     }
 }
