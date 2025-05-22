@@ -29,11 +29,12 @@ public class GetUserDto : IMapFrom<User>
     public string? Email { get; set; }
     public bool? IsVerified { get; set; }
     public int DepartmentId { get; set; }
+    public int PositionId { get; set; }
 
     public void Mapping(Profile profile)
     {
         profile.CreateMap<User, GetUserDto>()
-            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}")); // Kết hợp FirstName và LastName để tạo FullName
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.LastName} {src.FirstName}"));
     }
 }
 
@@ -66,6 +67,7 @@ public class GetUserWithPaginationDto : IMapFrom<User>
     public bool? IsVerified { get; set; }
     public List<BaseRole>? Roles { get; set; }
     public string DepartmentName { get; set; }
+    public string PositionName { get; set; }
 
     public void Mapping(Profile profile)
     {
@@ -77,7 +79,8 @@ public class GetUserWithPaginationDto : IMapFrom<User>
                 DisplayName = ur.Role.DisplayName,
                 Color = ur.Role.Color,
             })))
-            .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department != null ? src.Department.Name : string.Empty));
+            .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department != null ? src.Department.Name : string.Empty))
+            .ForMember(dest => dest.PositionName, opt => opt.MapFrom(src => src.Position != null ? src.Position.Name : string.Empty));
     }
 }
 

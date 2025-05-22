@@ -41,6 +41,7 @@ public partial class ApplicationDbContext : DbContext
     public DbSet<ProjectLeader> ProjectLeaders => Set<ProjectLeader>();
     public DbSet<Rank> Ranks => Set<Rank>();
     public DbSet<Sector> Sectors => Set<Sector>();
+    public DbSet<Position> Positions => Set<Position>();
     public DbSet<TaskType> TaskTypes => Set<TaskType>();
     
     public DbSet<User> User => Set<User>();
