@@ -59,5 +59,10 @@ public class RolePermissionDto
 {
     public string Group { get; set; }
     public List<string> Permissions { get; set; }
-
+}
+public class BaseRole
+{
+    public string Code { get; set; }
+    public string DisplayName { get; set; }
+    public string Color { get; set; }
 }
