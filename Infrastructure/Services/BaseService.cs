@@ -42,7 +42,16 @@ public abstract class BaseService
            
         }
     }
-
+    
+    protected int? UserId
+    {
+        get
+        {
+            return _httpContextAccessor.HttpContext?.Items["UserId"] as int?;
+           
+        }
+    }
+    
     protected List<string> Roles 
     {
         get

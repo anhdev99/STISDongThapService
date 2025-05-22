@@ -458,4 +458,12 @@ public class RoleService(
         await _unitOfWork.Save(cancellationToken);
         return await Result<int>.SuccessAsync(role.Id, "Vai trò đã được gán quyền");
     }
+    
+    public List<string> GetRoleByProfileCode(int userId)
+    {
+        var roles =  _unitOfWork.Repository<UserRole>().Entities
+            .Where(x => x.UserId == userId &&  x.IsDeleted != true).Select(x => x.Role.Code).ToList();
+        
+        return roles;
+    }
 }

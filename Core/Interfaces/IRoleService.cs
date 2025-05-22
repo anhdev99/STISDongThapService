@@ -24,4 +24,5 @@ public interface IRoleService
     Task<Result<List<string>>> GetConfigPermissionByRoleId(int roleId, CancellationToken cancellationToken);
     Task<Result<List<RolePermissionDto>>> GetPermissions(CancellationToken cancellationToken);
     Task<Result<int>> ConfigPermissionRole(ConfigPermissionRoleRequest request, CancellationToken cancellationToken);
+    List<string> GetRoleByProfileCode(int userId);
 }

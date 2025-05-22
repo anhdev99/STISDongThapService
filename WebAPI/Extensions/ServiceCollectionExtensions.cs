@@ -111,5 +111,6 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient<ISeeder, RoleSeeder>();
         services.AddTransient<ISeeder, DepartmentSeeder>();
+        services.AddTransient<ISeeder, MenuSeeder>();
     } 
 }

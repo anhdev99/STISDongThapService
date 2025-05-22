@@ -1,3 +1,4 @@
+using AutoMapper;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 
@@ -12,7 +13,7 @@ public class JwtMiddleware
         _next = next;
     }
 
-    public async Task Invoke(HttpContext context, IJwtUtils jwtUtils, IUserService userService)
+    public async Task Invoke(HttpContext context, IJwtUtils jwtUtils, IUserService userService, IRoleService roleService)
     {
         var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
         var userId = jwtUtils.ValidateJwtToken(token);
@@ -22,18 +23,13 @@ public class JwtMiddleware
             if (user != null)
             {
                 context.Items["UserName"] = user.UserName;
+                context.Items["UserId"] = user.Id;
                 context.Items["User"] = user;
-                // if(!string.IsNullOrEmpty(profileCode))
-                // {
-                //     var profile = await profileService.GetProfileByUserNameAndProfileCode(userName, profileCode);
-                //     if (profile != null)
-                //     {
-                //         var roles = roleService.GetRoleByProfileCode(userName, profile.ProfileCode);
-                //         context.Items["Profile"] = profile;
-                //         context.Items["ProfileCode"] = profile.ProfileCode;
-                //         context.Items["Roles"] = roles;
-                //     } 
-                // }
+                if (user.Id > 0)
+                {
+                    var roles = roleService.GetRoleByProfileCode(user.Id);
+                    context.Items["Roles"] = roles; 
+                }
             }
         }
 
