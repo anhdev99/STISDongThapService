@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Core.Common;
 using Core.DTOs.Requests;
 using Core.DTOs.Responses;
 using Core.Entities;
@@ -32,15 +33,22 @@ public class UserService(
         {
             throw new Exception("Tài khoản đã tồn tại");
         }
-
+        
         if (request.Password != request.ConfirmPassword)
         {
             throw new Exception("Mật khẩu không trùng khớp");
         }
 
+        var role = await _unitOfWork.Repository<Role>().Entities.Where(x => x.Code == RoleConstants.USER && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (role == null)
+            throw new Exception("Không tìm thấy vai trò!");
+        
         byte[] passwordHash, passwordSalt;
         PasswordHelper.GeneratePasswordHash(request.Password, out passwordHash, out passwordSalt);
-
+        
+        
         var entity = new User
         {
             UserName = request.UserName,
@@ -49,7 +57,8 @@ public class UserService(
             FirstName = request.FirstName,
             PhoneNumber = request.PhoneNumber,
             IsDeleted = false,
-            DepartmentId = request.DepartmentId
+            DepartmentId = request.DepartmentId,
+            PositionId = request.PositionId,
         };
 
         entity.PasswordHash = passwordHash;
@@ -57,6 +66,17 @@ public class UserService(
 
         await _unitOfWork.Repository<User>().AddAsync(entity);
         await _unitOfWork.Save(cancellationToken);
+        
+        var userRole = new UserRole
+        {
+            UserId = entity.Id,
+            RoleId = role.Id
+        };
+        await _unitOfWork.Repository<UserRole>().AddAsync(userRole);
+        await _unitOfWork.Save(cancellationToken);
+        entity.UserRoles.Add(userRole);
+        
+        
         _logger.LogInformation($"Tài khoản {request.UserName} đã được tạo");
         return await Result<int>.SuccessAsync(entity.Id, "Tạo tài khoản thành công");
     }
@@ -87,6 +107,7 @@ public class UserService(
         entity.PhoneNumber = request.PhoneNumber;
         entity.Email = request.Email;
         entity.DepartmentId = request.DepartmentId;
+        entity.PositionId = request.PositionId;
 
         await _unitOfWork.Repository<User>().UpdateAsync(entity);
         await _unitOfWork.Save(cancellationToken);

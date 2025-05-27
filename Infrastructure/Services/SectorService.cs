@@ -52,9 +52,6 @@ public class SectorService : ISectorService
         {
             throw new Exception($"Không tìm thấy ngành: {id}");
         }
-        entity.Code = model.Code;
-        entity.Name = model.Name;
-        entity.Order = model.Order;
         
         var existingStatus = await _context.Sectors
             .AnyAsync(x => x.Code == model.Code && x.Id != id && !x.IsDeleted, cancellationToken);
@@ -64,6 +61,11 @@ public class SectorService : ISectorService
             throw new Exception("Mã ngành đã tồn tại");
         }
 
+
+        entity.Code = model.Code;
+        entity.Name = model.Name;
+        entity.Order = model.Order;
+        
         await _context.SaveChangesAsync(cancellationToken);
 
         return await Result<int>.SuccessAsync(entity.Id, "Cập nhật ngành thành công");

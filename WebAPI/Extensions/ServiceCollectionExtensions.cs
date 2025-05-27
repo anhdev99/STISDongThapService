@@ -57,6 +57,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITaskTypeService, TaskTypeService>();
         services.AddScoped<IProjectService, ProjectService>();
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IPositionService, PositionService>();
         // Handlers
         services.AddTransient<INotificationHandler<FileDeletedEvent>, FileDeletedEventHandler>();
 
@@ -112,5 +113,6 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ISeeder, RoleSeeder>();
         services.AddTransient<ISeeder, DepartmentSeeder>();
         services.AddTransient<ISeeder, MenuSeeder>();
+        services.AddTransient<ISeeder, PositionSeeder>();
     } 
 }

@@ -10,7 +10,8 @@ public record CreateUserRequest(
     string LastName,
     string PhoneNumber,
     string Email,
-    int DepartmentId
+    int DepartmentId,
+    int PositionId
     );
 
 public record UpdateUserRequest(
@@ -20,8 +21,8 @@ public record UpdateUserRequest(
     string LastName,
     string PhoneNumber,
     string Email,
-    int DepartmentId
-    );
+    int DepartmentId,
+    int PositionId);
 
 public class VerifyRequest
 {

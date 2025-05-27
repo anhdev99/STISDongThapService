@@ -16,6 +16,7 @@ public class User : BaseAuditableEntity
     
     public int? DepartmentId { get; set; }
     public Department? Department { get; set; }
-    
+    public int? PositionId {get; set;}
+    public Position? Position { get; set; }
     public virtual ICollection<UserRole> UserRoles { get; set; }
 }
