@@ -6,22 +6,24 @@ using Core.DTOs.Responses;
 using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Shared;
 using Shared.Extensions;
 
 namespace Infrastructure.Services;
 
-public class ProjectService : IProjectService
+public class ProjectService(
+    IHttpContextAccessor httpContextAccessor,
+    ILogger<BaseService> logger,
+    ApplicationDbContext dbContext,
+    IUnitOfWork unitOfWork,
+    IMapper mapper)
+    : BaseService(httpContextAccessor, logger, dbContext, unitOfWork, mapper), IProjectService
 {
-    private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     
-    public ProjectService(ApplicationDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
     
     public async Task<Result<int>> Create(CreateProjectRequest model, CancellationToken cancellationToken)
     {
@@ -40,17 +42,19 @@ public class ProjectService : IProjectService
             RankId = model.RankId
         };
         
-        string json = JsonSerializer.Serialize(entity, new JsonSerializerOptions { WriteIndented = true });
-        Console.WriteLine(json);
-        _context.Projects.Add(entity);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.Repository<Project>().AddAsync(entity);
+        await _unitOfWork.Save(cancellationToken);
 
-        return await Result<int>.SuccessAsync(entity.Id, "Dự án tạo thành công");
+        _logger.LogInformation($"Dự án {model.Name} đã được tạo");
+        return await Result<int>.SuccessAsync(entity.Id, "Tạo dự án thành công");
+        
     }
     
     public async Task<Result<int>> Update(int id, UpdateProjectRequest model, CancellationToken cancellationToken)
     {
-        var entity = await _context.Projects.FirstOrDefaultAsync(x => x.Id == id && x.IsDeleted != true, cancellationToken);
+        var entity = await _unitOfWork.Repository<Project>().Entities
+            .Where(x => x.Id == id && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
         if (entity == null)
         {
             throw new Exception($"Không tìm thấy dự án: {id}");
@@ -68,14 +72,17 @@ public class ProjectService : IProjectService
         entity.GoverningAgencyId = model.GoverningAgencyId;
         entity.RankId = model.RankId;
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.Repository<Project>().UpdateAsync(entity);
+        await _unitOfWork.Save(cancellationToken);
 
-        return await Result<int>.SuccessAsync(entity.Id, "Cập nhật dự án thành công");
-    }
+        _logger.LogInformation($"Dự án {model.Name} đã được cập nhật");
+        return await Result<int>.SuccessAsync(entity.Id, "Cập nhật dự án thành công");    }
     
     public async Task<Result<int>> Delete(int id, CancellationToken cancellationToken)
     {
-        var entity = await _context.Projects.FirstOrDefaultAsync(x => x.Id == id && x.IsDeleted != true, cancellationToken);
+        var entity = await _unitOfWork.Repository<Project>().Entities
+            .Where(x => x.Id == id && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
         if (entity == null)
         {
             throw new Exception($"Không tìm thấy dự án: {id}");
@@ -83,32 +90,39 @@ public class ProjectService : IProjectService
 
         entity.IsDeleted = true;
 
-        await _context.SaveChangesAsync(cancellationToken);
-        return await Result<int>.SuccessAsync(entity.Id, "Xóa dự án thành công");
+        await _unitOfWork.Repository<Project>().UpdateAsync(entity);
+        await _unitOfWork.Save(cancellationToken);
+
+        _logger.LogInformation($"Dự án {entity.Name} đã được xóa");
+        return await Result<int>.SuccessAsync(id, "Xóa Dự án thành công");
     }
 
     public async Task<PaginatedResult<GetProjectWithPagingDto>> GetProjectsWithPaging(
-        GetProjectsWithPaginationQuery query, CancellationToken cancellationToken)
+        GetProjectsWithPaginationQuery request, CancellationToken cancellationToken)
     {
-        var filteredQuery = _context.Projects.AsQueryable().Where(x => !x.IsDeleted);
+        var query = _unitOfWork.Repository<Project>().Entities.Where(x => x.IsDeleted == false);
 
-        if (!string.IsNullOrEmpty(query.Keywords))
-        {
-            filteredQuery = filteredQuery.Where(x => x.Name.Contains(query.Keywords) || x.Content.Contains(query.Keywords));
-        }
+        if (!string.IsNullOrWhiteSpace(request.Keywords))
+            query = query.Where(x => x.Name.ToLower().Trim().Contains(request.Keywords.ToLower().Trim()));
 
-        return await filteredQuery
+        return await query.OrderByDescending(x => x.Name)
+            .ThenByDescending(x => x.UpdatedDate)
             .ProjectTo<GetProjectWithPagingDto>(_mapper.ConfigurationProvider)
-            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
+            .ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
     }
     
     public async Task<Result<GetProjectDetailDto>> GetById(int id, CancellationToken cancellationToken)
     {
-        var entity = await _context.Projects
+        var entity = await _unitOfWork.Repository<Project>().Entities
             .Where(x => x.Id == id && x.IsDeleted != true)
             .ProjectTo<GetProjectDetailDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
 
-        return await Result<GetProjectDetailDto>.SuccessAsync(entity);
+        if (entity == null)
+        {
+            throw new Exception("Dự án không tồn tại");
+        }
+
+        return await Result<GetProjectDetailDto>.SuccessAsync(entity);    
     }
 }

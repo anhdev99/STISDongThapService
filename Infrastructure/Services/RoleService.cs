@@ -22,7 +22,6 @@ public class RoleService(
     : BaseService(httpContextAccessor, logger,dbContext, unitOfWork, mapper), IRoleService
 {
     private readonly UserService _userService;
-    private readonly ApplicationDbContext _context;
 
     public async Task<Result<int>> Create(CreateRoleRequest request, CancellationToken cancellationToken)
     {

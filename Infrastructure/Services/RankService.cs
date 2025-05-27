@@ -5,26 +5,28 @@ using Core.DTOs.Responses;
 using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Shared;
 using Shared.Extensions;
 
 namespace Infrastructure.Services;
 
-public class RankService : IRankService
+public class RankService(
+    IHttpContextAccessor httpContextAccessor,
+    ILogger<BaseService> logger,
+    ApplicationDbContext dbContext,
+    IUnitOfWork unitOfWork,
+    IMapper mapper)
+    : BaseService(httpContextAccessor, logger, dbContext, unitOfWork, mapper) , IRankService
 {
-    private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
-    
-    public RankService(ApplicationDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
+   
     
     public async Task<Result<int>> Create(CreateRankRequest model, CancellationToken cancellationToken)
     {
-        var existingStatus = await _context.Ranks
+        var existingStatus = await _unitOfWork.Repository<Rank>().Entities
             .AnyAsync(x => x.Code == model.Code && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
@@ -41,15 +43,16 @@ public class RankService : IRankService
             Color = model.Color
         };
 
-        _context.Ranks.Add(entity);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.Repository<Rank>().AddAsync(entity);
+        await _unitOfWork.Save(cancellationToken);
 
-        return await Result<int>.SuccessAsync(entity.Id, "Tạo cấp bậc thành công");
+        _logger.LogInformation($"Cấp bật {model.Name} đã được tạo");
+        return await Result<int>.SuccessAsync(entity.Id, "Tạo cấp bật thành công");
     }
     
     public async Task<Result<int>> Update(int id, UpdateRankRequest model, CancellationToken cancellationToken)
     {
-        var entity = _context.Ranks.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
+        var entity = _unitOfWork.Repository<Rank>().Entities.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
         if (entity == null)
         {
             throw new Exception($"Không tìm thấy cấp bậc: {id}");
@@ -60,9 +63,7 @@ public class RankService : IRankService
         entity.BackgroundColor = model.BackgroundColor;
         entity.Color = model.Color;
 
-        await _context.SaveChangesAsync(cancellationToken);
-        
-        var existingStatus = await _context.Ranks
+        var existingStatus = await _unitOfWork.Repository<Rank>().Entities
             .AnyAsync(x => x.Code == model.Code.Trim() &&  x.Id != id && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
@@ -71,12 +72,17 @@ public class RankService : IRankService
         }
         
 
-        return await Result<int>.SuccessAsync(entity.Id, "Cập nhật cấp bậc thành công");
+        await _unitOfWork.Repository<Rank>().UpdateAsync(entity);
+        await _unitOfWork.Save(cancellationToken);
+
+        _logger.LogInformation($"Cấp bật {model.Name} đã được cập nhật");
+        return await Result<int>.SuccessAsync(entity.Id, "Cập nhật Cấp bật thành công");
+        
     }
     
     public async Task<Result<int>> Delete(int id, CancellationToken cancellationToken)
     {
-        var entity = _context.Ranks.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
+        var entity = _unitOfWork.Repository<Rank>().Entities.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
         if (entity == null)
         {
             throw new Exception($"Cấp bậc không tìm thấy: {id}");
@@ -84,39 +90,50 @@ public class RankService : IRankService
 
         entity.IsDeleted = true;
 
-        await _context.SaveChangesAsync(cancellationToken);
-        return await Result<int>.SuccessAsync(entity.Id, "Xóa cấp bậc thành công");
+        await _unitOfWork.Repository<Rank>().UpdateAsync(entity);
+        await _unitOfWork.Save(cancellationToken);
+
+        _logger.LogInformation($"Cấp bật {entity.Name} đã được xóa");
+        return await Result<int>.SuccessAsync(id, "Xóa Cấp bật thành công");
     }
 
-    public async Task<PaginatedResult<GetRankWithPagingDto>> GetRanksWithPaging(GetRanksWithPaginationQuery query,
-        CancellationToken cancellationToken)
+    public async Task<PaginatedResult<GetRankWithPagingDto>> GetRanksWithPaging(GetRanksWithPaginationQuery request, CancellationToken cancellationToken)
     {
-        var filteredQuery = _context.Ranks.AsQueryable();
+        var query = _unitOfWork.Repository<Rank>().Entities.Where(x => x.IsDeleted == false);
 
-        filteredQuery = filteredQuery.Where(x => !x.IsDeleted).OrderBy(x => x.Order);
+        if (!string.IsNullOrWhiteSpace(request.Keywords))
+            query = query.Where(x => x.Name.ToLower().Trim().Contains(request.Keywords.ToLower().Trim()));
 
-        if (!string.IsNullOrEmpty(query.Keywords))
-        {
-            filteredQuery = filteredQuery.Where(x => x.Name.Contains(query.Keywords));
-        }
-
-        return await filteredQuery.OrderByDescending(x => x.Order)
+        return await query.OrderByDescending(x => x.Name)
+            .ThenByDescending(x => x.UpdatedDate)
             .ProjectTo<GetRankWithPagingDto>(_mapper.ConfigurationProvider)
-            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
+            .ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
     }
     
     public async Task<Result<GetRankDto>> GetById(int id, CancellationToken cancellationToken)
     {
-        var entity = await _context.Ranks.Where(x => x.Id == id && x.IsDeleted != true)
+        var entity = await _unitOfWork.Repository<Project>().Entities.Where(x => x.Id == id && x.IsDeleted != true)
             .ProjectTo<GetRankDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(cancellationToken);
 
+        if (entity == null)
+        {
+            throw new Exception("Cấp bật không tồn tại");
+        }
+
         return await Result<GetRankDto>.SuccessAsync(entity);
+        
     }
     
     public async Task<Result<List<RankSimpleDto>>> GetAll()
     {
-        var list = _context.Ranks.Where(x => !x.IsDeleted).OrderBy(x => x.Order).ProjectTo<RankSimpleDto>(_mapper.ConfigurationProvider)
-            .ToList();
+        var query = _unitOfWork.Repository<Project>()
+            .Entities 
+            .Where(x => !x.IsDeleted)
+            .ProjectTo<RankSimpleDto>(_mapper.ConfigurationProvider);
+
+        var list = await query.ToListAsync();
+
         return await Result<List<RankSimpleDto>>.SuccessAsync(list);
     }
+
 }

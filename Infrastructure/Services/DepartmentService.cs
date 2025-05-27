@@ -22,19 +22,8 @@ public class DepartmentService(
     IMapper mapper)
     : BaseService(httpContextAccessor, logger, dbContext, unitOfWork, mapper), IDepartmentService
 {
-    private readonly ApplicationDbContext _context = dbContext;
     private readonly IMapper _mapper = mapper;
     
-    public async Task<DepartmentResponse> GetDepartmentByCode(string departmentCode,
-        CancellationToken cancellationToken)
-    {
-        
-        var entity = await _unitOfWork.Repository<Department>().Entities
-            .Where(x => x.Code == departmentCode && x.IsDeleted != true)
-            .ProjectTo<DepartmentResponse>(_mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync(cancellationToken);
-        return entity;
-    }
     private List<string> FlattenDepartments(List<DepartmentTreeDto> departments, int level = 0)
     {
         var result = new List<string>();
@@ -54,7 +43,6 @@ public class DepartmentService(
         var lookup = flatList.ToDictionary(d => d.Id);
         var rootList = new List<DepartmentTreeDto>();
 
-        // Add Children
         foreach (var dept in flatList)
         {
             if (dept.ParentId == null)
@@ -149,7 +137,7 @@ public class DepartmentService(
 
     public async Task<Result<int>> Create(CreateDepartmentRequest model, CancellationToken cancellationToken)
     {
-        var existingStatus = await _context.Departments
+        var existingStatus = await _unitOfWork.Repository<Department>().Entities
             .AnyAsync(x => x.Code == model.Code && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
@@ -165,41 +153,47 @@ public class DepartmentService(
             ParentId = model.parentId
         };
 
-        _context.Departments.Add(entity);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.Repository<Department>().AddAsync(entity);
+        await _unitOfWork.Save(cancellationToken);
 
         return await Result<int>.SuccessAsync(entity.Id, "Phòng ban đã được tạo");
     }
     
-    public async Task<Result<int>> Update(int id, UpdateDepartmentRequest model, CancellationToken cancellationToken)
+    public async Task<Result<int>> Update(int id, UpdateDepartmentRequest request, CancellationToken cancellationToken)
     {
-        var entity = _context.Departments.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
+        var entity = await _unitOfWork.Repository<Department>().Entities
+            .Where(x => x.Id == id && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
+        
         if (entity == null)
         {
             throw new Exception($"Không tìm thấy phòng ban: {id}");
         }
         
-        var existingStatus = await _context.Departments
-            .AnyAsync(x => x.Code == model.Code.Trim() && x.Id != id && !x.IsDeleted, cancellationToken);
+        var existingStatus = await _unitOfWork.Repository<Department>().Entities
+            .AnyAsync(x => x.Code == request.Code.Trim() && x.Id != id && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
         {
             throw new Exception("Mã vai trò đã tồn tại");
         }
         
-        entity.Code = model.Code;
-        entity.Name = model.Name;
-        entity.Order = model.Order;
-        entity.ParentId = model.parentId;
+        entity.Code = request.Code;
+        entity.Name = request.Name;
+        entity.Order = request.Order;
+        entity.ParentId = request.parentId;
 
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return await Result<int>.SuccessAsync(entity.Id, "Cập nhật phòng ban thành công");
-    }
+        await _unitOfWork.Repository<Department>().UpdateAsync(entity);
+        await _unitOfWork.Save(cancellationToken);
+        
+        _logger.LogInformation($"Phòng ban {request.Name} đã được cập nhật");
+        return await Result<int>.SuccessAsync(entity.Id, "Cập nhật Phòng ban thành công");    }
     
     public async Task<Result<int>> Delete(int id, CancellationToken cancellationToken)
     {
-        var entity = _context.Departments.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
+        var entity = await _unitOfWork.Repository<Department>().Entities
+            .Where(x => x.Id == id && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
         if (entity == null)
         {
             throw new Exception($"Không tìm thấy phòng ban: {id}");
@@ -207,38 +201,45 @@ public class DepartmentService(
 
         entity.IsDeleted = true;
 
-        await _context.SaveChangesAsync(cancellationToken);
-        return await Result<int>.SuccessAsync(entity.Id, "Đã xóa phòng ban");
+        await _unitOfWork.Repository<Department>().UpdateAsync(entity);
+        await _unitOfWork.Save(cancellationToken);
+        _logger.LogInformation($"Phòng ban {entity.Name} đã được xóa");
+        return await Result<int>.SuccessAsync(id, "Xóa Phòng ban thành công");
+        
     }
 
-    public async Task<PaginatedResult<GetDepartmentWithPagingDto>> GetDepartmentsWithPaging(GetDepartmentsWithPaginationQuery query,
-        CancellationToken cancellationToken)
+    public async Task<PaginatedResult<GetDepartmentWithPagingDto>> GetDepartmentsWithPaging(
+        GetDepartmentsWithPaginationQuery request, CancellationToken cancellationToken)
     {
-        var filteredQuery = _context.Departments.AsQueryable();
+        var query = _unitOfWork.Repository<Department>().Entities.Where(x => x.IsDeleted == false);
 
-        filteredQuery = filteredQuery.Where(x => !x.IsDeleted).OrderBy(x => x.Order);
+        if (!string.IsNullOrWhiteSpace(request.Keywords))
+            query = query.Where(x => x.Name.ToLower().Trim().Contains(request.Keywords.ToLower().Trim()));
 
-        if (!string.IsNullOrEmpty(query.Keywords))
-        {
-            filteredQuery = filteredQuery.Where(x => x.Name.Contains(query.Keywords));
-        }
-
-        return await filteredQuery.OrderByDescending(x => x.Order)
+        return await query.OrderByDescending(x => x.ParentId)
+            .ThenByDescending(x => x.UpdatedDate)
             .ProjectTo<GetDepartmentWithPagingDto>(_mapper.ConfigurationProvider)
-            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
+            .ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
     }
     
     public async Task<Result<GetDepartmentDto>> GetById(int id, CancellationToken cancellationToken)
     {
-        var entity = await _context.Departments.Where(x => x.Id == id && x.IsDeleted != true)
-            .ProjectTo<GetDepartmentDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(cancellationToken);
+        var entity = await _unitOfWork.Repository<Department>().Entities
+            .Where(x => x.Id == id && x.IsDeleted == false)
+            .ProjectTo<GetDepartmentDto>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (entity == null)
+        {
+            throw new Exception("Menu không tồn tại");
+        }
 
         return await Result<GetDepartmentDto>.SuccessAsync(entity);
     }
 
     public async Task<Result<List<GetDepartmentDto>>> GetAllDepartment(CancellationToken cancellationToken)
     {
-        var entity = await _context.Departments
+        var entity = await _unitOfWork.Repository<Department>().Entities
             .Where(x => x.IsDeleted != true)
             .ProjectTo<GetDepartmentDto>(_mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);
@@ -249,16 +250,15 @@ public class DepartmentService(
     
     public async Task<Result<List<DepartmentResponse>>> GetFullDepartmentTree(CancellationToken cancellationToken = default)
     {
-        var allDepartments = await _context.Departments
+        var allDepartments = await _unitOfWork.Repository<Department>().Entities
             .Where(x => !x.IsDeleted)
-            .OrderBy(x => x.Order) // đảm bảo danh sách ban đầu có thứ tự
+            .OrderBy(x => x.Order)
             .ToListAsync(cancellationToken);
 
         var lookup = allDepartments.ToLookup(d => d.ParentId);
 
         async Task<List<DepartmentResponse>> BuildTree(int? parentId)
         {
-            // Duyệt qua các node con theo thứ tự Order
             var children = lookup[parentId]
                 .OrderBy(d => d.Order)
                 .Select(async dept => new DepartmentResponse

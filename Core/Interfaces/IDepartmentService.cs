@@ -12,7 +12,7 @@ namespace Core.Interfaces
         Task<Result<int>> Update(int id, UpdateDepartmentRequest model, CancellationToken cancellationToken);
         Task<Result<int>> Delete(int id, CancellationToken cancellationToken);
 
-        Task<PaginatedResult<GetDepartmentWithPagingDto>> GetDepartmentsWithPaging(GetDepartmentsWithPaginationQuery query,
+        Task<PaginatedResult<GetDepartmentWithPagingDto>> GetDepartmentsWithPaging(GetDepartmentsWithPaginationQuery request,
             CancellationToken cancellationToken);
         Task<Result<GetDepartmentDto>> GetById(int id, CancellationToken cancellationToken);
         Task<Result<List<GetDepartmentDto>>> GetAllDepartment( CancellationToken cancellationToken);

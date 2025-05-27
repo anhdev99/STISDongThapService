@@ -21,8 +21,6 @@ public class PermissionService(
     IMapper mapper)
     : BaseService(httpContextAccessor, logger, dbContext, unitOfWork, mapper), IPermissionService
 {
-    private readonly ApplicationDbContext _context;
-
     public async Task<Result<int>> Create(CreatePermissionRequest request, CancellationToken cancellationToken)
     {
         

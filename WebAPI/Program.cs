@@ -17,6 +17,7 @@ builder.Services.AddControllers(
     options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
     options.SerializerSettings.DateFormatString = "dd/MM/yyyy";
 }).AddFluentValidation();
+
 builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>
 {
