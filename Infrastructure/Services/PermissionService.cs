@@ -48,7 +48,7 @@ public class PermissionService(
             Order = request.Order,
             Code = request.Code,
             Priority = request.Priority,
-            IsProtected = true,
+            IsProtected = request.IsProtected
         };
         await _unitOfWork.Repository<Permission>().AddAsync(entity);
         await _unitOfWork.Save(cancellationToken);
@@ -75,11 +75,6 @@ public class PermissionService(
             throw new Exception("Mã quyền đã tồn tại");
         }
 
-        if (entity.IsProtected)
-        {
-            throw new Exception("Đang được bảo vệ");
-        }
-
         var name = request.Name.Trim();
         var existingPermission = await _unitOfWork.Repository<Permission>().Entities
             .Where(x => x.Name.Equals(name) && x.Id != request.id && x.IsDeleted == false)
@@ -94,6 +89,7 @@ public class PermissionService(
         entity.Order = request.Order;
         entity.Code = request.Code;
         entity.Priority = request.Priority;
+        entity.IsProtected = request.IsProtected;
 
         await _unitOfWork.Repository<Permission>().UpdateAsync(entity);
         await _unitOfWork.Save(cancellationToken);

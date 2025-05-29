@@ -21,9 +21,6 @@ public class TaskTypeService  (
     IMapper mapper)
     : BaseService(httpContextAccessor, logger,dbContext, unitOfWork, mapper),  ITaskTypeService
 {
-    private readonly IMapper _mapper;
-
-    
     public async Task<Result<int>> Create(CreateTaskTypeRequest model, CancellationToken cancellationToken)
     {
         var existingStatus = await _unitOfWork.Repository<TaskType>().Entities
@@ -75,7 +72,7 @@ public class TaskTypeService  (
     
     public async Task<Result<int>> Delete(int id, CancellationToken cancellationToken)
     {
-        var entity = _unitOfWork.Repository<Rank>().Entities.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
+        var entity = _unitOfWork.Repository<TaskType>().Entities.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
         if (entity == null)
         {
             throw new Exception($"Loại nhiệm vụ không tìm thấy: {id}");
@@ -83,7 +80,7 @@ public class TaskTypeService  (
 
         entity.IsDeleted = true;
 
-        await _unitOfWork.Repository<Rank>().UpdateAsync(entity);
+        await _unitOfWork.Repository<TaskType>().UpdateAsync(entity);
         await _unitOfWork.Save(cancellationToken);
 
         _logger.LogInformation($"Loại nhiệm vụ {entity.Name} đã được xóa");

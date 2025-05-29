@@ -20,7 +20,7 @@ public class UserService(
     ILogger<BaseService> logger,
     ApplicationDbContext dbContext,
     IUnitOfWork unitOfWork,
-    IMapper mapper)
+    IMapper mapper) 
     : BaseService(httpContextAccessor, logger, dbContext, unitOfWork, mapper), IUserService
 {
     public async Task<Result<int>> Create(CreateUserRequest request, CancellationToken cancellationToken)

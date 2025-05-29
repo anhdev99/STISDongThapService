@@ -21,8 +21,6 @@ public class ProjectStatusService(
     IMapper mapper)
     : BaseService(httpContextAccessor, logger, dbContext, unitOfWork, mapper),  IStatusService
 {
-    private readonly IMapper _mapper;
-    
     
     public async Task<Result<int>> Create(CreateStatusRequest model, CancellationToken cancellationToken)
     {
@@ -94,7 +92,7 @@ public class ProjectStatusService(
     public async Task<PaginatedResult<GetStatusesWithPagingDto>> GetStatusesWithPaging(GetStatusesWithPaginationQuery query,
         CancellationToken cancellationToken)
     {
-        var filteredQuery = _unitOfWork.Repository<Project>().Entities.Where(x => x.IsDeleted == false);
+        var filteredQuery = _unitOfWork.Repository<ProjectStatus>().Entities.Where(x => x.IsDeleted == false);
 
         if (!string.IsNullOrWhiteSpace(query.Keywords))
             filteredQuery = filteredQuery.Where(x => x.Name.ToLower().Trim().Contains(query.Keywords.ToLower().Trim()));

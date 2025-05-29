@@ -22,8 +22,6 @@ public class ProjectService(
     IMapper mapper)
     : BaseService(httpContextAccessor, logger, dbContext, unitOfWork, mapper), IProjectService
 {
-    private readonly IMapper _mapper;
-    
     
     public async Task<Result<int>> Create(CreateProjectRequest model, CancellationToken cancellationToken)
     {

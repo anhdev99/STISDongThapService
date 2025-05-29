@@ -1,3 +1,4 @@
+using AutoMapper;
 using Core.Common.Mappings;
 using Core.Entities;
 
@@ -11,6 +12,11 @@ public class GetStatusesWithPagingDto : IMapFrom<ProjectStatus>
     public int Order { get; set; }
     public string? BackgroundColor { get; set; }
     public string? Color { get; set; }
+    
+    public void Mapping(Profile profile)
+    {
+        profile.CreateMap<ProjectStatus, GetStatusesWithPagingDto>();
+    }
 }
 
 public class GetStatusDto : IMapFrom<ProjectStatus>

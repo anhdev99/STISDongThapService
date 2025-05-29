@@ -21,8 +21,6 @@ public class RankService(
     IMapper mapper)
     : BaseService(httpContextAccessor, logger, dbContext, unitOfWork, mapper) , IRankService
 {
-    private readonly IMapper _mapper;
-   
     
     public async Task<Result<int>> Create(CreateRankRequest model, CancellationToken cancellationToken)
     {
@@ -99,20 +97,22 @@ public class RankService(
 
     public async Task<PaginatedResult<GetRankWithPagingDto>> GetRanksWithPaging(GetRanksWithPaginationQuery query, CancellationToken cancellationToken)
     {
-        var filteredQuery = _unitOfWork.Repository<Rank>().Entities.Where(x => x.IsDeleted == false);
+        var filteredQuery = _unitOfWork.Repository<Rank>().Entities.AsQueryable();
 
+        filteredQuery = filteredQuery.Where(x => !x.IsDeleted).OrderBy(x => x.Order);
+
+        Console.WriteLine("filteredQuery SQL: " + filteredQuery.ToQueryString());
         if (!string.IsNullOrWhiteSpace(query.Keywords))
             filteredQuery = filteredQuery.Where(x => x.Name.ToLower().Trim().Contains(query.Keywords.ToLower().Trim()));
 
         return await filteredQuery.OrderByDescending(x => x.Name)
-            .ThenByDescending(x => x.UpdatedDate)
             .ProjectTo<GetRankWithPagingDto>(_mapper.ConfigurationProvider)
             .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
     
     public async Task<Result<GetRankDto>> GetById(int id, CancellationToken cancellationToken)
     {
-        var entity = await _unitOfWork.Repository<Project>().Entities.Where(x => x.Id == id && x.IsDeleted != true)
+        var entity = await _unitOfWork.Repository<Rank>().Entities.Where(x => x.Id == id && x.IsDeleted != true)
             .ProjectTo<GetRankDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(cancellationToken);
 
         if (entity == null)
@@ -126,7 +126,7 @@ public class RankService(
     
     public async Task<Result<List<RankSimpleDto>>> GetAll()
     {
-        var query = _unitOfWork.Repository<Project>()
+        var query = _unitOfWork.Repository<Rank>()
             .Entities 
             .Where(x => !x.IsDeleted)
             .ProjectTo<RankSimpleDto>(_mapper.ConfigurationProvider);

@@ -7,7 +7,8 @@ public record CreatePermissionRequest(
     string Code,
     string Description,
     int Order,
-    bool Priority
+    bool Priority,
+    bool IsProtected
     );
 
 public record UpdatePermissionRequest(
@@ -16,7 +17,8 @@ public record UpdatePermissionRequest(
     string Name,
     string Description,
     int Order,
-    bool Priority);
+    bool Priority,
+    bool IsProtected);
 
 public record GetPermissionsWithPaginationQuery(
     int PageNumber,

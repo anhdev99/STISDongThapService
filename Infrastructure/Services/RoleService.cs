@@ -300,15 +300,27 @@ public class RoleService(
 
     public async Task<Result<List<int>>> GetConfigMenuByRoleId(int roleId, CancellationToken cancellationToken)
     {
-        var role = await _unitOfWork.Repository<Role>().Entities.Include(x => x.RoleMenus)
-            .Where(x => x.Id == roleId  && !x.IsDeleted).FirstOrDefaultAsync(cancellationToken);
+        var role = await _unitOfWork.Repository<Role>().Entities
+            .Include(x => x.RoleMenus)
+            .Where(x => x.Id == roleId && !x.IsDeleted)
+            .FirstOrDefaultAsync(cancellationToken);
+
         if (role == null)
             throw new Exception($"Không tìm thấy vai trò với Id {roleId}");
 
-        var configMenuIds = role.RoleMenus.Where(x =>  !x.IsDeleted).Select(x => x.MenuId).ToList();
+        var menuIdsFromRole = role.RoleMenus
+            .Where(x => !x.IsDeleted)
+            .Select(x => x.MenuId)
+            .ToList();
 
-        return Result<List<int>>.Success(configMenuIds);
+        var validMenuIds = await _unitOfWork.Repository<Menu>().Entities
+            .Where(m => menuIdsFromRole.Contains(m.Id) && !m.IsDeleted)
+            .Select(m => m.Id)
+            .ToListAsync(cancellationToken);
+
+        return Result<List<int>>.Success(validMenuIds);
     }
+
 
     public async Task<Result<int>> ConfigUserRole(ConfigUserRoleRequest request, CancellationToken cancellationToken)
     {
@@ -368,20 +380,24 @@ public class RoleService(
         return await Result<int>.SuccessAsync(1, "Cấu hình vai trò người dùng thành công");
     }
 
-    public async Task<Result<List<RolePermissionDto>>> GetPermissions(
-        CancellationToken cancellationToken)
+    public async Task<Result<List<RolePermissionDto>>> GetPermissions(CancellationToken cancellationToken)
     {
         var permissions = await _unitOfWork.Repository<Permission>().Entities
-            .Where(x => x.IsDeleted != true).ToListAsync(cancellationToken);
+            .Where(x => x.IsDeleted != true && !string.IsNullOrWhiteSpace(x.Code))
+            .ToListAsync(cancellationToken);
 
-        var result = permissions.GroupBy(x => x.Code.Split('.')[0]).Select(g => new RolePermissionDto
-        {
-            Group = g.Key,
-            Permissions = g.Select(x => x.Code).ToList()
-        }).ToList();
+        var result = permissions
+            .GroupBy(x => x.Code.Trim().Split('.')[0]) // nhóm theo phần đầu
+            .Select(g => new RolePermissionDto
+            {
+                Group = g.Key,
+                Permissions = g.Select(x => x.Code.Trim()).ToList()
+            })
+            .ToList();
 
         return Result<List<RolePermissionDto>>.Success(result);
     }
+
     public async Task<Result<List<string>>> GetConfigPermissionByRoleId(int roleId,
         CancellationToken cancellationToken)
     {

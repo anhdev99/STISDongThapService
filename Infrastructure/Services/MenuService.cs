@@ -111,23 +111,31 @@ public class MenuService(
         return await Result<int>.SuccessAsync(entity.Id, "Cập nhật menu thành công");
     }
 
-    public async Task<Result<int>> Delete(int id, CancellationToken cancellationToken)
+    public async Task<Result<List<int>>> Delete(int id, CancellationToken cancellationToken)
     {
-        var entity = await _unitOfWork.Repository<Menu>().Entities
-            .Where(x => x.Id == id && x.IsDeleted == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (entity == null)
+        var menus = await _unitOfWork.Repository<Menu>().Entities
+            .Where(x => (x.Id == id || x.ParentId == id) && !x.IsDeleted)
+            .ToListAsync(cancellationToken);
+
+        if (!menus.Any())
         {
-            throw new Exception("Menu không tồn tại");
+            throw new Exception("Menu không tồn tại hoặc đã bị xóa");
         }
 
-        entity.IsDeleted = true;
-        await _unitOfWork.Repository<Menu>().UpdateAsync(entity);
+        foreach (var menu in menus)
+        {
+            menu.IsDeleted = true;
+            await _unitOfWork.Repository<Menu>().UpdateAsync(menu);
+            _logger.LogInformation($"Menu {menu.Name} đã được xóa");
+        }
+
         await _unitOfWork.Save(cancellationToken);
 
-        _logger.LogInformation($"Menu {entity.Name} đã được xóa");
-        return await Result<int>.SuccessAsync(id, "Xóa menu thành công");
+        var deletedIds = menus.Select(x => x.Id).ToList();
+        return await Result<List<int>>.SuccessAsync(deletedIds, "Xóa menu và các menu con thành công");
     }
+
+
 
     public async Task<PaginatedResult<GetMenuWithPaginationDto>> GetMenusWithPagination(
         GetMenusWithPaginationQuery query, CancellationToken cancellationToken)

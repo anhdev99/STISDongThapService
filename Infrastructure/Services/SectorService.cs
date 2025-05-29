@@ -21,8 +21,6 @@ public class SectorService (
     IMapper mapper)
     : BaseService(httpContextAccessor, logger,dbContext, unitOfWork, mapper), ISectorService
 {
-    private readonly IMapper _mapper;
- 
     
     public async Task<Result<int>> Create(CreateSectorRequest model, CancellationToken cancellationToken)
     {
@@ -50,13 +48,13 @@ public class SectorService (
     
     public async Task<Result<int>> Update(int id, UpdateSectorRequest model, CancellationToken cancellationToken)
     {
-        var entity = _unitOfWork.Repository<Rank>().Entities.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
+        var entity = _unitOfWork.Repository<Sector>().Entities.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
         if (entity == null)
         {
             throw new Exception($"Không tìm thấy ngành: {id}");
         }
         
-        var existingStatus = await _unitOfWork.Repository<Rank>().Entities
+        var existingStatus = await _unitOfWork.Repository<Sector>().Entities
             .AnyAsync(x => x.Code == model.Code && x.Id != id && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
@@ -70,7 +68,7 @@ public class SectorService (
         entity.Order = model.Order;
         
         
-        await _unitOfWork.Repository<Rank>().UpdateAsync(entity);
+        await _unitOfWork.Repository<Sector>().UpdateAsync(entity);
         await _unitOfWork.Save(cancellationToken);
 
         _logger.LogInformation($"Ngành {model.Name} đã được cập nhật");
@@ -79,7 +77,7 @@ public class SectorService (
     
     public async Task<Result<int>> Delete(int id, CancellationToken cancellationToken)
     {
-        var entity = _unitOfWork.Repository<Rank>().Entities.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
+        var entity = _unitOfWork.Repository<Sector>().Entities.FirstOrDefault(x => x.Id == id && x.IsDeleted != true);
         if (entity == null)
         {
             throw new Exception($"Không tìm thấy ngành: {id}");
@@ -87,7 +85,7 @@ public class SectorService (
 
         entity.IsDeleted = true;
 
-        await _unitOfWork.Repository<Rank>().UpdateAsync(entity);
+        await _unitOfWork.Repository<Sector>().UpdateAsync(entity);
         await _unitOfWork.Save(cancellationToken);
 
         _logger.LogInformation($"Ngành {entity.Name} đã được xóa");

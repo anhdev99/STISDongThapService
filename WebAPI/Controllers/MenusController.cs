@@ -38,7 +38,7 @@ public class MenusController(ILogger<MenusController> logger, IMenuService menuS
 
     [HttpPost]
     [Route("delete/{id}")]
-    public async Task<ActionResult<Result<int>>> Delete([FromRoute] int id, CancellationToken cancellationToken)
+    public async Task<Result<List<int>>> Delete([FromRoute] int id, CancellationToken cancellationToken)
     {
         return await menuService.Delete(id, cancellationToken);
     }
