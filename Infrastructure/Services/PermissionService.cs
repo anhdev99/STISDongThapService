@@ -126,20 +126,20 @@ public class PermissionService(
     }
 
     public async Task<PaginatedResult<GetPermissionWithPaginationDto>> GetPermissionsWithPagination(
-        GetPermissionsWithPaginationQuery request, CancellationToken cancellationToken)
+        GetPermissionsWithPaginationQuery query, CancellationToken cancellationToken)
     {
-        var query = _unitOfWork.Repository<Permission>().Entities.Where(x => x.IsDeleted == false);
-        if (!string.IsNullOrWhiteSpace(request.Keywords))
-            query = query.Where(x => x.Name.ToLower().Trim().Contains(request.Keywords.ToLower().Trim()));
+        var filteredQuery = _unitOfWork.Repository<Permission>().Entities.Where(x => x.IsDeleted == false);
+        if (!string.IsNullOrWhiteSpace(query.Keywords))
+            filteredQuery = filteredQuery.Where(x => x.Name.ToLower().Trim().Contains(query.Keywords.ToLower().Trim()));
 
-        if (request.RoleIds != null)
-            query = query.Where(x =>
-                x.RolePermissions != null && x.RolePermissions.Any(p => request.RoleIds.Contains(p.Id)));
+        if (query.RoleIds != null)
+            filteredQuery = filteredQuery.Where(x =>
+                x.RolePermissions != null && x.RolePermissions.Any(p => query.RoleIds.Contains(p.Id)));
 
-        return await query.OrderByDescending(x => x.Order)
+        return await filteredQuery.OrderByDescending(x => x.Order)
             .ThenByDescending(x => x.UpdatedDate)
             .ProjectTo<GetPermissionWithPaginationDto>(_mapper.ConfigurationProvider)
-            .ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
+            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
 
     public async Task<Result<GetPermissionDto>> GetById(int id, CancellationToken cancellationToken)

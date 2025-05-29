@@ -142,17 +142,17 @@ public class RoleService(
     }
 
     public async Task<PaginatedResult<GetRoleWithPaginationDto>> GetRolesWithPagination(
-        GetRolesWithPaginationQuery request, CancellationToken cancellationToken)
+        GetRolesWithPaginationQuery query, CancellationToken cancellationToken)
     {
-        var query = _unitOfWork.Repository<Role>().Entities.Where(x => x.IsDeleted == false);
+        var filteredQuery = _unitOfWork.Repository<Role>().Entities.Where(x => x.IsDeleted == false);
 
-        if (!string.IsNullOrWhiteSpace(request.Keywords))
-            query = query.Where(x => x.Name.ToLower().Trim().Contains(request.Keywords.ToLower().Trim()));
+        if (!string.IsNullOrWhiteSpace(query.Keywords))
+            filteredQuery = filteredQuery.Where(x => x.Name.ToLower().Trim().Contains(query.Keywords.ToLower().Trim()));
 
-        return await query.OrderByDescending(x => x.Order)
+        return await filteredQuery.OrderByDescending(x => x.Order)
             .ThenByDescending(x => x.UpdatedDate)
             .ProjectTo<GetRoleWithPaginationDto>(_mapper.ConfigurationProvider)
-            .ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
+            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
 
     public async Task<Result<GetRoleDto>> GetById(int id, CancellationToken cancellationToken)

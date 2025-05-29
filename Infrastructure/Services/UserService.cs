@@ -135,32 +135,32 @@ public class UserService(
     }
 
     public async Task<PaginatedResult<GetUserWithPaginationDto>> GetUsersWithPagination(
-        GetUsersWithPaginationQuery request, CancellationToken cancellationToken)
+        GetUsersWithPaginationQuery query, CancellationToken cancellationToken)
     {
-        var query = _unitOfWork.Repository<User>().Entities
+        var filteredQuery = _unitOfWork.Repository<User>().Entities
             .Include(u => u.UserRoles.Where(ur => !ur.IsDeleted))
             .ThenInclude(ur => ur.Role)
             .Where(u => !u.IsDeleted);
 
-        if (!string.IsNullOrWhiteSpace(request.Keywords))
+        if (!string.IsNullOrWhiteSpace(query.Keywords))
         {
-            var keyword = request.Keywords.Trim().ToLower();
-            query = query.Where(x => x.UserName.ToLower().Contains(keyword));
+            var keyword = query.Keywords.Trim().ToLower();
+            filteredQuery = filteredQuery.Where(x => x.UserName.ToLower().Contains(keyword));
         }
 
-        if (request.DepartmentId.HasValue)
+        if (query.DepartmentId.HasValue)
         {
-            query = query.Where(x => x.DepartmentId == request.DepartmentId.Value);
+            filteredQuery = filteredQuery.Where(x => x.DepartmentId == query.DepartmentId.Value);
         }
 
-        if (request.RoleId.HasValue)
+        if (query.RoleId.HasValue)
         {
-            query = query.Where(x => x.UserRoles.Any(ur => ur.RoleId == request.RoleId));
+            filteredQuery = filteredQuery.Where(x => x.UserRoles.Any(ur => ur.RoleId == query.RoleId));
         }
 
-        return await query
+        return await filteredQuery
             .ProjectTo<GetUserWithPaginationDto>(_mapper.ConfigurationProvider)
-            .ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
+            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
 
     public async Task<Result<GetUserDto>> GetById(int id, CancellationToken cancellationToken)

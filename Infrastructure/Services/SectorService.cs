@@ -94,18 +94,18 @@ public class SectorService (
         return await Result<int>.SuccessAsync(id, "Xóa ngành thành công");
     }
 
-    public async Task<PaginatedResult<GetSectorWithPagingDto>> GetSectorsWithPaging(GetSectorsWithPaginationQuery request,
+    public async Task<PaginatedResult<GetSectorWithPagingDto>> GetSectorsWithPaging(GetSectorsWithPaginationQuery query,
         CancellationToken cancellationToken)
     {
-        var query = _unitOfWork.Repository<Sector>().Entities.Where(x => x.IsDeleted == false);
+        var filteredQuery = _unitOfWork.Repository<Sector>().Entities.Where(x => x.IsDeleted == false);
 
-        if (!string.IsNullOrWhiteSpace(request.Keywords))
-            query = query.Where(x => x.Name.ToLower().Trim().Contains(request.Keywords.ToLower().Trim()));
+        if (!string.IsNullOrWhiteSpace(query.Keywords))
+            filteredQuery = filteredQuery.Where(x => x.Name.ToLower().Trim().Contains(query.Keywords.ToLower().Trim()));
 
-        return await query.OrderByDescending(x => x.Name)
+        return await filteredQuery.OrderByDescending(x => x.Name)
             .ThenByDescending(x => x.UpdatedDate)
             .ProjectTo<GetSectorWithPagingDto>(_mapper.ConfigurationProvider)
-            .ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
+            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
     
     public async Task<Result<GetSectorDto>> GetById(int id, CancellationToken cancellationToken)

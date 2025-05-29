@@ -130,23 +130,23 @@ public class MenuService(
     }
 
     public async Task<PaginatedResult<GetMenuWithPaginationDto>> GetMenusWithPagination(
-        GetMenusWithPaginationQuery request, CancellationToken cancellationToken)
+        GetMenusWithPaginationQuery query, CancellationToken cancellationToken)
     {
-        var query = _unitOfWork.Repository<Menu>().Entities.Where(x => x.IsDeleted == false);
+        var filteredQuery = _unitOfWork.Repository<Menu>().Entities.Where(x => x.IsDeleted == false);
 
-        if (!string.IsNullOrWhiteSpace(request.Keywords))
-            query = query.Where(x => x.Name.ToLower().Trim().Contains(request.Keywords.ToLower().Trim()));
+        if (!string.IsNullOrWhiteSpace(query.Keywords))
+            filteredQuery = filteredQuery.Where(x => x.Name.ToLower().Trim().Contains(query.Keywords.ToLower().Trim()));
 
-        if (request.ParentId != null)
-            query = query.Where(x => x.ParentId == request.ParentId);
+        if (query.ParentId != null)
+            filteredQuery = filteredQuery.Where(x => x.ParentId == query.ParentId);
 
-        if (request.RoleIds != null)
-            query = query.Where(x => x.RoleMenus != null && x.RoleMenus.Any(p => request.RoleIds.Contains(p.Id)));
+        if (query.RoleIds != null)
+            filteredQuery = filteredQuery.Where(x => x.RoleMenus != null && x.RoleMenus.Any(p => query.RoleIds.Contains(p.Id)));
 
-        return await query.OrderByDescending(x => x.ParentId)
+        return await filteredQuery.OrderByDescending(x => x.ParentId)
             .ThenByDescending(x => x.UpdatedDate)
             .ProjectTo<GetMenuWithPaginationDto>(_mapper.ConfigurationProvider)
-            .ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
+            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
 
     public async Task<Result<GetMenuDto>> GetById(int id, CancellationToken cancellationToken)

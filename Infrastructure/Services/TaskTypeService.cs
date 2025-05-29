@@ -90,18 +90,18 @@ public class TaskTypeService  (
         return await Result<int>.SuccessAsync(id, "Xóa loại nhiệm vụ thành công");
     }
 
-    public async Task<PaginatedResult<GetTaskTypeWithPagingDto>> GetTaskTypesWithPaging(GetTaskTypesWithPaginationQuery request,
+    public async Task<PaginatedResult<GetTaskTypeWithPagingDto>> GetTaskTypesWithPaging(GetTaskTypesWithPaginationQuery query,
         CancellationToken cancellationToken)
     {
-        var query = _unitOfWork.Repository<TaskType>().Entities.Where(x => x.IsDeleted == false);
+        var filteredQuery = _unitOfWork.Repository<TaskType>().Entities.Where(x => x.IsDeleted == false);
 
-        if (!string.IsNullOrWhiteSpace(request.Keywords))
-            query = query.Where(x => x.Name.ToLower().Trim().Contains(request.Keywords.ToLower().Trim()));
+        if (!string.IsNullOrWhiteSpace(query.Keywords))
+            filteredQuery = filteredQuery.Where(x => x.Name.ToLower().Trim().Contains(query.Keywords.ToLower().Trim()));
 
-        return await query.OrderByDescending(x => x.Name)
+        return await filteredQuery.OrderByDescending(x => x.Name)
             .ThenByDescending(x => x.UpdatedDate)
             .ProjectTo<GetTaskTypeWithPagingDto>(_mapper.ConfigurationProvider)
-            .ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
+            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
     
     public async Task<Result<GetTaskTypeDto>> GetById(int id, CancellationToken cancellationToken)

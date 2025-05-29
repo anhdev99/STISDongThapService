@@ -14,7 +14,7 @@ public interface IUserService
     Task<PaginatedResult<GetUserWithPaginationDto>> GetUsersWithPagination(GetUsersWithPaginationQuery query,
         CancellationToken cancellationToken);
 
-    Task<Result<GetUserDto>> GetById(int id, CancellationToken cancellationToken =default);
+    Task<Result<GetUserDto>> GetById(int id, CancellationToken cancellationToken);
     Task<GetUserDto> GetById(int id);
     Task<Result<List<GetUserDto>>> GetAll(CancellationToken cancellationToken);
 

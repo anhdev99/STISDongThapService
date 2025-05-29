@@ -98,17 +98,17 @@ public class ProjectService(
     }
 
     public async Task<PaginatedResult<GetProjectWithPagingDto>> GetProjectsWithPaging(
-        GetProjectsWithPaginationQuery request, CancellationToken cancellationToken)
+        GetProjectsWithPaginationQuery query, CancellationToken cancellationToken)
     {
-        var query = _unitOfWork.Repository<Project>().Entities.Where(x => x.IsDeleted == false);
+        var filteredQuery = _unitOfWork.Repository<Project>().Entities.Where(x => x.IsDeleted == false);
 
-        if (!string.IsNullOrWhiteSpace(request.Keywords))
-            query = query.Where(x => x.Name.ToLower().Trim().Contains(request.Keywords.ToLower().Trim()));
+        if (!string.IsNullOrWhiteSpace(query.Keywords))
+            filteredQuery = filteredQuery.Where(x => x.Name.ToLower().Trim().Contains(query.Keywords.ToLower().Trim()));
 
-        return await query.OrderByDescending(x => x.Name)
+        return await filteredQuery.OrderByDescending(x => x.Name)
             .ThenByDescending(x => x.UpdatedDate)
             .ProjectTo<GetProjectWithPagingDto>(_mapper.ConfigurationProvider)
-            .ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
+            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
     
     public async Task<Result<GetProjectDetailDto>> GetById(int id, CancellationToken cancellationToken)

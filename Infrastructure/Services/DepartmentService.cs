@@ -209,17 +209,17 @@ public class DepartmentService(
     }
 
     public async Task<PaginatedResult<GetDepartmentWithPagingDto>> GetDepartmentsWithPaging(
-        GetDepartmentsWithPaginationQuery request, CancellationToken cancellationToken)
+        GetDepartmentsWithPaginationQuery query, CancellationToken cancellationToken)
     {
-        var query = _unitOfWork.Repository<Department>().Entities.Where(x => x.IsDeleted == false);
+        var filteredQuery = _unitOfWork.Repository<Department>().Entities.Where(x => x.IsDeleted == false);
 
-        if (!string.IsNullOrWhiteSpace(request.Keywords))
-            query = query.Where(x => x.Name.ToLower().Trim().Contains(request.Keywords.ToLower().Trim()));
+        if (!string.IsNullOrWhiteSpace(query.Keywords))
+            filteredQuery = filteredQuery.Where(x => x.Name.ToLower().Trim().Contains(query.Keywords.ToLower().Trim()));
 
-        return await query.OrderByDescending(x => x.ParentId)
+        return await filteredQuery.OrderByDescending(x => x.ParentId)
             .ThenByDescending(x => x.UpdatedDate)
             .ProjectTo<GetDepartmentWithPagingDto>(_mapper.ConfigurationProvider)
-            .ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
+            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
     
     public async Task<Result<GetDepartmentDto>> GetById(int id, CancellationToken cancellationToken)
