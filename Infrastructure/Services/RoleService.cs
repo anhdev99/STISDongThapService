@@ -193,29 +193,29 @@ public class RoleService(
         if (role == null)
             throw new Exception("Vai trò không tồn tại");
 
+        var existingRoleMenus = await _unitOfWork.Repository<RoleMenu>().Entities
+            .Where(x => x.RoleId == request.RoleId && !x.IsDeleted)
+            .ToListAsync(cancellationToken);
+
         if (request.MenuIds != null && request.MenuIds.Any())
         {
-            var existingRoleMenus = await _unitOfWork.Repository<RoleMenu>().Entities
-                .Where(x => x.RoleId == request.RoleId).ToListAsync(cancellationToken);
-
+            // Đánh dấu tất cả menu hiện tại là đã xóa
             foreach (var item in existingRoleMenus)
             {
                 item.IsDeleted = true;
                 await _unitOfWork.Repository<RoleMenu>().UpdateAsync(item);
             }
 
+            // Lấy danh sách menu hợp lệ từ danh sách yêu cầu
             var existingMenus = await _unitOfWork.Repository<Menu>().Entities
-                .Where(x => request.MenuIds.Contains(x.Id) && x.IsDeleted == false)
+                .Where(x => request.MenuIds.Contains(x.Id) && !x.IsDeleted)
                 .ToListAsync(cancellationToken);
+
             if (existingMenus.Count <= 0)
-            {
                 throw new Exception("Không tìm thấy menu nào");
-            }
 
             if (existingMenus.Count != request.MenuIds.Count)
-            {
                 throw new Exception("Một số menu không tồn tại");
-            }
 
             foreach (var menu in existingMenus)
             {
@@ -234,7 +234,12 @@ public class RoleService(
         }
         else
         {
-            throw new Exception("Menu Id là bắt buộc");
+            // Nếu không có menuId, thì xóa toàn bộ menu của role
+            foreach (var item in existingRoleMenus)
+            {
+                item.IsDeleted = true;
+                await _unitOfWork.Repository<RoleMenu>().UpdateAsync(item);
+            }
         }
 
         await _unitOfWork.Save(cancellationToken);
