@@ -95,11 +95,6 @@ public class RoleService(
             throw new Exception("Tên vai trò đã tồn tại");
         }
 
-        if (entity.IsProtected)
-        {
-            throw new Exception("Đang được bảo vệ");
-        }
-
         entity.Name = name;
         entity.Description = request.Description;
         entity.Order = request.Order;
@@ -107,6 +102,7 @@ public class RoleService(
         entity.DisplayName = request.DisplayName;
         entity.Code = request.Code;
         entity.Color = request.Color;
+        entity.IsProtected = request.isProtected;
 
         await _unitOfWork.Repository<Role>().UpdateAsync(entity);
         await _unitOfWork.Save(cancellationToken);
@@ -392,12 +388,11 @@ public class RoleService(
             .ToListAsync(cancellationToken);
 
         var result = permissions
-            .GroupBy(x => x.Code.Trim().Split('.')[0]) // nhóm theo phần đầu
+            .GroupBy(x => x.Code.Trim().Split('.')[0]) 
             .Select(g => new RolePermissionDto
             {
                 Group = g.Key,
-                Permissions = g.Select(x => x.Code.Trim()).ToList()
-            })
+                Permissions = g.Select(x => new PermissionList { Label = x.Name?.Trim() ?? "", Value = x.Code }).ToList()            })
             .ToList();
 
         return Result<List<RolePermissionDto>>.Success(result);

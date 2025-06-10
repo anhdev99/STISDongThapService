@@ -17,7 +17,8 @@ public record UpdateRoleRequest(
     int Order,
     string Code,
     bool Priority,
-    string Color);
+    string Color,
+    bool isProtected);
 
 public record GetRolesWithPaginationQuery(
     int PageNumber,

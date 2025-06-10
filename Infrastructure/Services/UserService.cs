@@ -138,8 +138,6 @@ public class UserService(
         GetUsersWithPaginationQuery query, CancellationToken cancellationToken)
     {
         var filteredQuery = _unitOfWork.Repository<User>().Entities
-            .Include(u => u.UserRoles.Where(ur => !ur.IsDeleted))
-            .ThenInclude(ur => ur.Role)
             .Where(u => !u.IsDeleted);
 
         if (!string.IsNullOrWhiteSpace(query.Keywords))
@@ -155,12 +153,20 @@ public class UserService(
 
         if (query.RoleId.HasValue)
         {
-            filteredQuery = filteredQuery.Where(x => x.UserRoles.Any(ur => ur.RoleId == query.RoleId));
+            filteredQuery = filteredQuery.Where(x => x.UserRoles.Any(ur =>
+                ur.RoleId == query.RoleId.Value &&
+                !ur.IsDeleted &&
+                ur.Role != null && !ur.Role.IsDeleted));
         }
 
-        return await filteredQuery
+        // Lấy danh sách User và ánh xạ sang DTO
+        var result = await filteredQuery
+            .Include(u => u.UserRoles.Where(ur => !ur.IsDeleted && !ur.Role.IsDeleted))
+            .ThenInclude(ur => ur.Role)
             .ProjectTo<GetUserWithPaginationDto>(_mapper.ConfigurationProvider)
             .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
+
+        return result;
     }
 
     public async Task<Result<GetUserDto>> GetById(int id, CancellationToken cancellationToken)

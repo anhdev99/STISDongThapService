@@ -73,16 +73,21 @@ public class GetUserWithPaginationDto : IMapFrom<User>
     {
         profile.CreateMap<User, GetUserWithPaginationDto>()
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
-            .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.UserRoles.Select(ur => new BaseRole
-            {
-                Code = ur.Role.Code,
-                DisplayName = ur.Role.DisplayName,
-                Color = ur.Role.Color,
-            })))
+            .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => 
+                src.UserRoles
+                    .Where(ur => !ur.IsDeleted && ur.Role != null && !ur.Role.IsDeleted)
+                    .Select(ur => new BaseRole
+                    {
+                        Code = ur.Role.Code,
+                        DisplayName = ur.Role.DisplayName,
+                        Color = ur.Role.Color
+                    })
+                    .ToList()))
             .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department != null ? src.Department.Name : string.Empty))
             .ForMember(dest => dest.PositionName, opt => opt.MapFrom(src => src.Position != null ? src.Position.Name : string.Empty));
     }
 }
+
 
 public class GetMeDto : IMapFrom<User>
 {

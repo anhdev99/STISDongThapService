@@ -55,11 +55,18 @@ public class GetRoleWithPaginationDto : IMapFrom<Role>
         profile.CreateMap<Role, GetRoleWithPaginationDto>();
     }
 }
+
+public class PermissionList
+{
+    public string Label { get; set; }
+    public string Value { get; set; }
+}
 public class RolePermissionDto
 {
     public string Group { get; set; }
-    public List<string> Permissions { get; set; }
-}
+
+
+    public List<PermissionList> Permissions { get; set; }}
 public class BaseRole
 {
     public string Code { get; set; }
