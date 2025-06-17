@@ -10,7 +10,7 @@ public record CreateMenuRequest(
     int? ParentId);
 
 public record UpdateMenuRequest(
-    int id,
+    int Id,
     string Name,
     string? Url,
     string? Description,

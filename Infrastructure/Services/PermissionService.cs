@@ -67,7 +67,7 @@ public class PermissionService(
         }
         
         var existingStatus = await _unitOfWork.Repository<Permission>().Entities
-            .Where(x => x.Code == request.Code && x.Id != request.id && x.IsDeleted == false)
+            .Where(x => x.Code == request.Code && x.Id != request.Id && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (existingStatus != null)
@@ -77,7 +77,7 @@ public class PermissionService(
 
         var name = request.Name.Trim();
         var existingPermission = await _unitOfWork.Repository<Permission>().Entities
-            .Where(x => x.Name.Equals(name) && x.Id != request.id && x.IsDeleted == false)
+            .Where(x => x.Name.Equals(name) && x.Id != request.Id && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
         if (existingPermission != null)
         {

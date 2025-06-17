@@ -150,7 +150,7 @@ public class DepartmentService(
             Code = model.Code,
             Name = model.Name,
             Order = model.Order,
-            ParentId = model.parentId
+            ParentId = model.ParentId
         };
 
         await _unitOfWork.Repository<Department>().AddAsync(entity);
@@ -181,7 +181,7 @@ public class DepartmentService(
         entity.Code = request.Code;
         entity.Name = request.Name;
         entity.Order = request.Order;
-        entity.ParentId = request.parentId;
+        entity.ParentId = request.ParentId;
 
         await _unitOfWork.Repository<Department>().UpdateAsync(entity);
         await _unitOfWork.Save(cancellationToken);

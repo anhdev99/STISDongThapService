@@ -12,7 +12,7 @@ public record CreatePermissionRequest(
     );
 
 public record UpdatePermissionRequest(
-    int id,
+    int Id,
     string Code,
     string Name,
     string Description,

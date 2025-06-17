@@ -78,7 +78,7 @@ public class RoleService(
         }
 
         var existingStatus = await _unitOfWork.Repository<Role>().Entities
-            .Where(x => x.Code == request.Code && x.Id != request.id && x.IsDeleted == false)
+            .Where(x => x.Code == request.Code && x.Id != request.Id && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (existingStatus != null)
@@ -88,7 +88,7 @@ public class RoleService(
 
         var name = request.Name.Trim();
         var existingRole = await _unitOfWork.Repository<Role>().Entities
-            .Where(x => x.Name.Equals(name) && x.Id != request.id && x.IsDeleted == false)
+            .Where(x => x.Name.Equals(name) && x.Id != request.Id && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
         if (existingRole != null)
         {
@@ -102,7 +102,7 @@ public class RoleService(
         entity.DisplayName = request.DisplayName;
         entity.Code = request.Code;
         entity.Color = request.Color;
-        entity.IsProtected = request.isProtected;
+        entity.IsProtected = request.IsProtected;
 
         await _unitOfWork.Repository<Role>().UpdateAsync(entity);
         await _unitOfWork.Save(cancellationToken);
@@ -326,7 +326,7 @@ public class RoleService(
     public async Task<Result<int>> ConfigUserRole(ConfigUserRoleRequest request, CancellationToken cancellationToken)
     {
         Console.WriteLine("UserName: " + request.UserName);
-        Console.WriteLine("RoleId: " + request.roleCode);
+        Console.WriteLine("RoleId: " + request.RoleCode);
         Console.WriteLine("cancellationToken: " + cancellationToken);
 
         // Check for null user profile
@@ -345,13 +345,13 @@ public class RoleService(
         
         // check for null role
         var role = await _unitOfWork.Repository<Role>().Entities
-            .Where(x => x.Code == request.roleCode && x.IsDeleted != true)
+            .Where(x => x.Code == request.RoleCode && x.IsDeleted != true)
             .ProjectTo<GetRoleDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
         
         if (role == null)
         {
-            throw new Exception($"Không tìm thấy quyền {request.roleCode}");
+            throw new Exception($"Không tìm thấy quyền {request.RoleCode}");
         }
 
         var roleId = role.Id;

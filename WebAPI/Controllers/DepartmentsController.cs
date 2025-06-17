@@ -14,6 +14,10 @@ public class DepartmentsController(IMediator mediator, ILogger<DepartmentsContro
     [Route("create")]
     public async Task<ActionResult<Result<int>>> Create(CreateDepartmentRequest request, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await departmentService.Create(request, cancellationToken);
     }
 
@@ -22,6 +26,10 @@ public class DepartmentsController(IMediator mediator, ILogger<DepartmentsContro
     public async Task<ActionResult<Result<int>>> Update(int id, UpdateDepartmentRequest request,
         CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await departmentService.Update(id, request, cancellationToken);
     }
 
@@ -44,6 +52,10 @@ public class DepartmentsController(IMediator mediator, ILogger<DepartmentsContro
     public async Task<ActionResult<PaginatedResult<GetDepartmentWithPagingDto>>> GetDepartmentWithPaging(
         [FromQuery] GetDepartmentsWithPaginationQuery query, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await departmentService.GetDepartmentsWithPaging(query, cancellationToken);
     }
     

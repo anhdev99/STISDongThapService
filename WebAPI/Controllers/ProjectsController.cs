@@ -14,6 +14,10 @@ public class ProjectsController(IProjectService ProjectService, ILogger<Projects
     [Route("create")]
     public async Task<ActionResult<Result<int>>> Create(CreateProjectRequest request, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await ProjectService.Create(request, cancellationToken);
     }
 
@@ -22,6 +26,10 @@ public class ProjectsController(IProjectService ProjectService, ILogger<Projects
     public async Task<ActionResult<Result<int>>> Update(int id, UpdateProjectRequest request,
         CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await ProjectService.Update(id, request, cancellationToken);
     }
 
@@ -44,6 +52,10 @@ public class ProjectsController(IProjectService ProjectService, ILogger<Projects
     public async Task<ActionResult<PaginatedResult<GetProjectWithPagingDto>>> GetProjectWithPaging(
         [FromQuery] GetProjectsWithPaginationQuery query, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await ProjectService.GetProjectsWithPaging(query, cancellationToken);
     }
 }

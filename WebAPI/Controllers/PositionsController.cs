@@ -15,6 +15,10 @@ public class PositionsController(IPositionService positionService, ILogger<Secto
     [Route("create")]
     public async Task<ActionResult<Result<int>>> Create(CreatePositionRequest request, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await positionService.Create(request, cancellationToken);
     }
 
@@ -23,6 +27,10 @@ public class PositionsController(IPositionService positionService, ILogger<Secto
     public async Task<ActionResult<Result<int>>> Update(int id, UpdatePositionRequest request,
         CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await positionService.Update(id, request, cancellationToken);
     }
 
@@ -45,6 +53,10 @@ public class PositionsController(IPositionService positionService, ILogger<Secto
     public async Task<ActionResult<PaginatedResult<GetPositionsWithPagingDto>>> GetSectorWithPaging(
         [FromQuery] GetPositionsWithPaginationQuery query, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await positionService.GetPositionsWithPaging(query, cancellationToken);
     }
 

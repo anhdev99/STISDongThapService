@@ -14,6 +14,10 @@ public class ProjectStatusesController(IStatusService Statuseservice, ILogger<Pr
     [Route("create")]
     public async Task<ActionResult<Result<int>>> Create(CreateStatusRequest request, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await Statuseservice.Create(request, cancellationToken);
     }
 
@@ -22,6 +26,10 @@ public class ProjectStatusesController(IStatusService Statuseservice, ILogger<Pr
     public async Task<ActionResult<Result<int>>> Update(int id, UpdateStatusRequest request,
         CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await Statuseservice.Update(id, request, cancellationToken);
     }
 
@@ -44,6 +52,10 @@ public class ProjectStatusesController(IStatusService Statuseservice, ILogger<Pr
     public async Task<ActionResult<PaginatedResult<GetStatusesWithPagingDto>>> GetRankWithPaging(
         [FromQuery] GetStatusesWithPaginationQuery query, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await Statuseservice.GetStatusesWithPaging(query, cancellationToken);
     }
 

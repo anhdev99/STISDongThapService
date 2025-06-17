@@ -14,6 +14,10 @@ public class TaskTypesController(ITaskTypeService TaskTypeService, ILogger<TaskT
     [Route("create")]
     public async Task<ActionResult<Result<int>>> Create(CreateTaskTypeRequest request, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await TaskTypeService.Create(request, cancellationToken);
     }
 
@@ -22,6 +26,10 @@ public class TaskTypesController(ITaskTypeService TaskTypeService, ILogger<TaskT
     public async Task<ActionResult<Result<int>>> Update(int id, UpdateTaskTypeRequest request,
         CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await TaskTypeService.Update(id, request, cancellationToken);
     }
 
@@ -44,6 +52,10 @@ public class TaskTypesController(ITaskTypeService TaskTypeService, ILogger<TaskT
     public async Task<ActionResult<PaginatedResult<GetTaskTypeWithPagingDto>>> GetTaskTypeWithPaging(
         [FromQuery] GetTaskTypesWithPaginationQuery query, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await TaskTypeService.GetTaskTypesWithPaging(query, cancellationToken);
     }
 

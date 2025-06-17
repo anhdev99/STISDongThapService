@@ -14,6 +14,10 @@ public class RanksController(IRankService rankService, ILogger<RanksController> 
     [Route("create")]
     public async Task<ActionResult<Result<int>>> Create(CreateRankRequest request, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await rankService.Create(request, cancellationToken);
     }
 
@@ -22,6 +26,10 @@ public class RanksController(IRankService rankService, ILogger<RanksController> 
     public async Task<ActionResult<Result<int>>> Update(int id, UpdateRankRequest request,
         CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await rankService.Update(id, request, cancellationToken);
     }
 
@@ -44,6 +52,10 @@ public class RanksController(IRankService rankService, ILogger<RanksController> 
     public async Task<ActionResult<PaginatedResult<GetRankWithPagingDto>>> GetRankWithPaging(
         [FromQuery] GetRanksWithPaginationQuery query, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await rankService.GetRanksWithPaging(query, cancellationToken);
     }
 

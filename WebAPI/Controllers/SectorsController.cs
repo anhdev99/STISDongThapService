@@ -14,6 +14,10 @@ public class SectorsController(ISectorService SectorService, ILogger<SectorsCont
     [Route("create")]
     public async Task<ActionResult<Result<int>>> Create(CreateSectorRequest request, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await SectorService.Create(request, cancellationToken);
     }
 
@@ -22,6 +26,10 @@ public class SectorsController(ISectorService SectorService, ILogger<SectorsCont
     public async Task<ActionResult<Result<int>>> Update(int id, UpdateSectorRequest request,
         CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await SectorService.Update(id, request, cancellationToken);
     }
 
@@ -44,6 +52,10 @@ public class SectorsController(ISectorService SectorService, ILogger<SectorsCont
     public async Task<ActionResult<PaginatedResult<GetSectorWithPagingDto>>> GetSectorWithPaging(
         [FromQuery] GetSectorsWithPaginationQuery query, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         return await SectorService.GetSectorsWithPaging(query, cancellationToken);
     }
 

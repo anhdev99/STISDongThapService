@@ -10,7 +10,7 @@ public record CreateRoleRequest(
     string Color);
 
 public record UpdateRoleRequest(
-    int id,
+    int Id,
     string Name,
     string Description,
     string DisplayName,
@@ -18,7 +18,7 @@ public record UpdateRoleRequest(
     string Code,
     bool Priority,
     string Color,
-    bool isProtected);
+    bool IsProtected);
 
 public record GetRolesWithPaginationQuery(
     int PageNumber,
@@ -34,7 +34,7 @@ public record RolePermissionRequest(
 public record ConfigUserRoleRequest 
 (
     string UserName,
-    string roleCode
+    string RoleCode
 );
 public record ConfigPermissionRoleRequest
 (

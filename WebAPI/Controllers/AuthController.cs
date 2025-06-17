@@ -16,6 +16,10 @@ public class AuthController(IIdentityService identityService, ILogger<AuthContro
     public async Task<ActionResult<Result<AuthenticationResponse>>> Create(LoginRequest command,
         CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         var data = await identityService.LoginAsync(command, IpAddress(), GetUserAgent(), cancellationToken);
         return await Result<AuthenticationResponse>.SuccessAsync(data, "Đăng nhập thành công.");
     }

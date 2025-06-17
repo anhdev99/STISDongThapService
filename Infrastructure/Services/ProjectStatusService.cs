@@ -36,6 +36,8 @@ public class ProjectStatusService(
             Code = model.Code,
             Name = model.Name,
             Order = model.Order,
+            BackgroundColor = model.BackgroundColor,
+            Color= model.Color,
         };
 
         await _unitOfWork.Repository<ProjectStatus>().AddAsync(entity);
@@ -64,6 +66,8 @@ public class ProjectStatusService(
         entity.Code = model.Code;
         entity.Name = model.Name;
         entity.Order = model.Order;
+        entity.BackgroundColor = model.BackgroundColor;
+        entity.Color= model.Color;
         
         await _unitOfWork.Repository<ProjectStatus>().UpdateAsync(entity);
         await _unitOfWork.Save(cancellationToken);
