@@ -34,7 +34,7 @@ public class RolesController(ILogger<RolesController> logger, IRoleService roleS
             return BadRequest(ModelState);
         }
 
-        if (id != request.id)
+        if (id != request.Id)
         {
             throw new Exception("Mã id không trùng với id trong body");
         }
