@@ -435,17 +435,17 @@ public class RoleService(
             await _unitOfWork.Repository<RolePermission>().UpdateAsync(item);
         }
 
-        if (request.PermissionNames != null && request.PermissionNames.Any())
+        if (request.PermissioCodes != null && request.PermissioCodes.Any())
         {
             var existingPermissions = await _unitOfWork.Repository<Permission>().Entities
-                .Where(x => request.PermissionNames.Contains(x.Code) && x.IsDeleted == false)
+                .Where(x => request.PermissioCodes.Contains(x.Code) && x.IsDeleted == false)
                 .ToListAsync(cancellationToken);
             if (existingPermissions.Count <= 0)
             {
                 throw new Exception("Không tìm thấy quyền nào");
             }
 
-            if (existingPermissions.Count != request.PermissionNames.Count)
+            if (existingPermissions.Count != request.PermissioCodes.Count)
             {
                 throw new Exception("Một số quyền không tồn tại");
             }

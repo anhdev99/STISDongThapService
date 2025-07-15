@@ -114,5 +114,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ISeeder, DepartmentSeeder>();
         services.AddTransient<ISeeder, MenuSeeder>();
         services.AddTransient<ISeeder, PositionSeeder>();
+        services.AddTransient<ISeeder, UserSeeder>();
+
     } 
 }

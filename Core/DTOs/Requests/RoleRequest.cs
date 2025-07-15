@@ -39,5 +39,5 @@ public record ConfigUserRoleRequest
 public record ConfigPermissionRoleRequest
 (
    int Id,
-   List<string> PermissionNames
+   List<string> PermissioCodes
 );

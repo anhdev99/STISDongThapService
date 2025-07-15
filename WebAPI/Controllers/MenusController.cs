@@ -78,7 +78,7 @@ public class MenusController(ILogger<MenusController> logger, IMenuService menuS
     }
 
     [HttpGet]
-    [Route("GetMenusByUserRoles")]
+    [Route("get-menus-by-user-roles")]
     public async Task<ActionResult<Result<List<GetMenuTreeViewDto>>>> GetMenusByUserRoles(
         CancellationToken cancellationToken)
     {
