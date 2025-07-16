@@ -8,8 +8,8 @@ public record CreateUserRequest(
     string ConfirmPassword,
     string FirstName,
     string LastName,
-    string PhoneNumber,
-    string Email,
+    string? PhoneNumber,
+    string? Email,
     int DepartmentId,
     int PositionId
     );
@@ -19,8 +19,8 @@ public record UpdateUserRequest(
     string UserName,
     string FirstName,
     string LastName,
-    string PhoneNumber,
-    string Email,
+    string? PhoneNumber,
+    string? Email,
     int DepartmentId,
     int PositionId);
 

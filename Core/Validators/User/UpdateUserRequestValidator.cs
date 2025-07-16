@@ -23,12 +23,14 @@ namespace Core.Validators.User
                 .MaximumLength(50).WithMessage("Tên không được vượt quá 50 ký tự.");
 
             RuleFor(x => x.PhoneNumber)
-                .NotEmpty().WithMessage("Số điện thoại không được để trống.")
-                .Matches(@"^\d{10,15}$").WithMessage("Số điện thoại không hợp lệ.");
+                .Matches(@"^\d{10,15}$")
+                .WithMessage("Số điện thoại không hợp lệ.")
+                .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber));
 
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email không được để trống.")
-                .EmailAddress().WithMessage("Email không hợp lệ.");
+                .EmailAddress()
+                .WithMessage("Email không hợp lệ.")
+                .When(x => !string.IsNullOrWhiteSpace(x.Email));
 
             RuleFor(x => x.DepartmentId)
                 .GreaterThan(0).WithMessage("Phòng ban không hợp lệ.");
