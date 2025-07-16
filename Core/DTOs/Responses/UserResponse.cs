@@ -15,7 +15,7 @@ public class UserDto: IMapFrom<User>
 
     public void Mapping(Profile profile)
     {
-        profile.CreateMap<User, UserDto>().ForMember(x => x.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+        profile.CreateMap<User, UserDto>().ForMember(x => x.FullName, opt => opt.MapFrom(src => $"{src.LastName} {src.FirstName}"));
     }
 }
 public class GetUserDto : IMapFrom<User>
@@ -51,7 +51,7 @@ public class GetAllUsersDto : IMapFrom<User>
     public void Mapping(Profile profile)
     {
         profile.CreateMap<User, GetAllUsersDto>()
-            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.LastName} {src.FirstName}"));
     }
 }
 
@@ -72,7 +72,7 @@ public class GetUserWithPaginationDto : IMapFrom<User>
     public void Mapping(Profile profile)
     {
         profile.CreateMap<User, GetUserWithPaginationDto>()
-            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.LastName} {src.FirstName}"))
             .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => 
                 src.UserRoles
                     .Where(ur => !ur.IsDeleted && ur.Role != null && !ur.Role.IsDeleted)
