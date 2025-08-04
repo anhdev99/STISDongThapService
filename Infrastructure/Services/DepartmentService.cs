@@ -138,7 +138,7 @@ public class DepartmentService(
     public async Task<Result<int>> Create(CreateDepartmentRequest model, CancellationToken cancellationToken)
     {
         var existingStatus = await _unitOfWork.Repository<Department>().Entities
-            .AnyAsync(x => x.Code == model.Code && !x.IsDeleted, cancellationToken);
+            .AnyAsync(x => x.Code.ToLower() == model.Code.ToLower() && !x.IsDeleted, cancellationToken);
 
         if (existingStatus)
         {
@@ -268,10 +268,14 @@ public class DepartmentService(
                     Name = dept.Name,
                     Order = dept.Order,
                     ParentId = dept.ParentId,
+                    Label = dept.Name,
+                    Value = dept.Id.ToString(),
                     Children = await BuildTree(dept.Id)
                 });
 
             var results = await Task.WhenAll(children);
+            if (results.Length == 0)
+                return null;
             return results.ToList();
         }
 
