@@ -49,6 +49,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRankService, RankService>();
         services.AddScoped<IManagementLevelService, ManagementLevelService>();
         services.AddScoped<IGoverningAgencyService, GoverningAgencyService>();
+        services.AddScoped<IHostOrganizationService, HostOrganizationService>();
         services.AddScoped<ISectorService, SectorService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
         services.AddScoped<IMenuService, MenuService>();
