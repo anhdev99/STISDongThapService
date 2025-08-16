@@ -39,14 +39,16 @@ public static class ServiceCollectionExtensions
                 builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-        
+
         // Configs
         // services.AddConfigSection<IAppSettings, AppSettings>(configuration, nameof(AppSettings));
         services.AddConfigSection<IJwtSettings, JwtSettings>(configuration, nameof(JwtSettings));
-  
+
         // Register Services
         services.AddScoped<IJwtUtils, JwtUtils>();
         services.AddScoped<IRankService, RankService>();
+        services.AddScoped<IManagementLevelService, ManagementLevelService>();
+        services.AddScoped<IGoverningAgencyService, GoverningAgencyService>();
         services.AddScoped<ISectorService, SectorService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
         services.AddScoped<IMenuService, MenuService>();
@@ -96,7 +98,7 @@ public static class ServiceCollectionExtensions
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-        
+
         using (var scope = app.Services.CreateScope())
         {
             var seeders = scope.ServiceProvider.GetServices<ISeeder>();
@@ -107,7 +109,7 @@ public static class ServiceCollectionExtensions
         }
     }
 
-  
+
     private static void AddSeeders(this IServiceCollection services)
     {
         services.AddTransient<ISeeder, RoleSeeder>();
@@ -116,5 +118,5 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ISeeder, PositionSeeder>();
         services.AddTransient<ISeeder, UserSeeder>();
 
-    } 
+    }
 }
